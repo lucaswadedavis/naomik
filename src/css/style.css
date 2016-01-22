@@ -1,0 +1,5 @@
+.gridster li{
+  list-style-type: none;
+  background: #ccc;
+  border: 1px solid #fff;
+}
