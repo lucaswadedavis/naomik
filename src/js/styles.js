@@ -20,7 +20,7 @@ var style = {
       'background': '#ccc',
       'border': '1px solid #fff'
       },
-      
+    'margin': '0 auto',      
       'li.auto1': auto1,
       'li.auto2': auto2,
       'li.auto3': auto3

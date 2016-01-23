@@ -55,7 +55,8 @@
 	  [2,2,2],
 	  [3,3],
 	  [2,4],
-	  [4,2]
+	  [4,2],
+	  [6]
 	  ];
 
 	var autoClasses = ['auto1', 'auto2', 'auto3'];
@@ -65,8 +66,9 @@
 	for (var i=0;i<10;i++){
 	  var row = _.sample(rows);
 	  var genomeRow = [];
+	  var height = Math.ceil(Math.random() * 3);
 	  for (var j=0;j<row.length;j++){
-	    genomeRow.push({width: row[j], autoClass: _.sample(autoClasses)});
+	    genomeRow.push({width: row[j], height: height, autoClass: _.sample(autoClasses)});
 	  }
 	  genome.rows.push(genomeRow);
 	}
@@ -79,6 +81,7 @@
 	  $('body').html(templates.grid(genome));
 	  var gridster = $('.gridster ul').gridster({
 	    widget_margins: [5, 5],
+	      max_cols: 6,
 	      widget_base_dimensions: [150, 100],
 	      helper: 'clone',
 	      resize: {
@@ -119,12 +122,14 @@
 	  d += '<div class="gridster-wrapper">';
 	  d += '<div class="gridster">';
 	  d += '<ul>';
+	  var rowIndex = 1;
 	  for (var i=0;i<genome.rows.length;i++){
 	    var colIndex = 1;
 	    for (var j=0;j<genome.rows[i].length;j++){
-	      d += grid.cell(i + 1, colIndex, genome.rows[i][j].width, 1, genome.rows[i][j].autoClass);
+	      d += grid.cell(rowIndex, colIndex, genome.rows[i][j].width, genome.rows[i][j].height, genome.rows[i][j].autoClass);
 	      colIndex += genome.rows[i][j].width;
 	    }
+	    rowIndex += genome.rows[i][0].height;
 	  }
 	  d += '<ul>';
 	  d += '</div>';
@@ -175,7 +180,7 @@
 	      'background': '#ccc',
 	      'border': '1px solid #fff'
 	      },
-	      
+	    'margin': '0 auto',      
 	      'li.auto1': auto1,
 	      'li.auto2': auto2,
 	      'li.auto3': auto3

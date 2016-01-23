@@ -9,7 +9,8 @@ var rows = [
   [2,2,2],
   [3,3],
   [2,4],
-  [4,2]
+  [4,2],
+  [6]
   ];
 
 var autoClasses = ['auto1', 'auto2', 'auto3'];
@@ -19,8 +20,9 @@ var autoClasses = ['auto1', 'auto2', 'auto3'];
 for (var i=0;i<10;i++){
   var row = _.sample(rows);
   var genomeRow = [];
+  var height = Math.ceil(Math.random() * 3);
   for (var j=0;j<row.length;j++){
-    genomeRow.push({width: row[j], autoClass: _.sample(autoClasses)});
+    genomeRow.push({width: row[j], height: height, autoClass: _.sample(autoClasses)});
   }
   genome.rows.push(genomeRow);
 }
@@ -33,6 +35,7 @@ var app = function(){
   $('body').html(templates.grid(genome));
   var gridster = $('.gridster ul').gridster({
     widget_margins: [5, 5],
+      max_cols: 6,
       widget_base_dimensions: [150, 100],
       helper: 'clone',
       resize: {

@@ -13,12 +13,14 @@ var grid = function(genome){
   d += '<div class="gridster-wrapper">';
   d += '<div class="gridster">';
   d += '<ul>';
+  var rowIndex = 1;
   for (var i=0;i<genome.rows.length;i++){
     var colIndex = 1;
     for (var j=0;j<genome.rows[i].length;j++){
-      d += grid.cell(i + 1, colIndex, genome.rows[i][j].width, 1, genome.rows[i][j].autoClass);
+      d += grid.cell(rowIndex, colIndex, genome.rows[i][j].width, genome.rows[i][j].height, genome.rows[i][j].autoClass);
       colIndex += genome.rows[i][j].width;
     }
+    rowIndex += genome.rows[i][0].height;
   }
   d += '<ul>';
   d += '</div>';
