@@ -3,3 +3,11 @@
   background: #ccc;
   border: 1px solid #fff;
 }
+
+.gridster-wrapper {
+  width: 1210px;
+  margin:0;
+  padding:0;
+  position: absolute;
+  top:0;
+}

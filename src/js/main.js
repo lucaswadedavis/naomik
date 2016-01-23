@@ -1,40 +1,52 @@
-var app = function(){
- $('body').html(templates.grid());
- $(".gridster ul").gridster({
-        widget_margins: [5, 5],
-        widget_base_dimensions: [140, 140],
-        helper: 'clone',
-        resize: {
-            enabled: true
-          }
-    });  
-};
+var grid = require('./grid.js');
+var styles = require('./styles.js');
+var _ = require('../../lib/js/underscore.js');
+var darwa = require('../../lib/js/darwa.js');
+var rezi = require('../../lib/js/rezi.js');
 
-var templates = {};
+var rows = [
+  [1,1,1,1,1,1],
+  [2,2,2],
+  [3,3],
+  [2,4],
+  [4,2]
+  ];
 
-templates.grid = function(n){
-  n = n || 10;
-  var d = '';
-  d += '<div class="gridster">';
-  d += '<ul>';
-  for (var i=0;i<n;i++){
-    d += templates.grid.cell();
+var autoClasses = ['auto1', 'auto2', 'auto3'];
+
+  var genome = {};
+  genome.rows = [];
+for (var i=0;i<10;i++){
+  var row = _.sample(rows);
+  var genomeRow = [];
+  for (var j=0;j<row.length;j++){
+    genomeRow.push({width: row[j], autoClass: _.sample(autoClasses)});
   }
-  d += '<ul>';
-  d += '</div>';
-  return d;
+  genome.rows.push(genomeRow);
+}
+genome.colors = [];
+for (var i=0;i<3;i++){
+  genome.colors.push(darwa.rgb());
+}
+
+var app = function(){
+  $('body').html(templates.grid(genome));
+  var gridster = $('.gridster ul').gridster({
+    widget_margins: [5, 5],
+      widget_base_dimensions: [150, 100],
+      helper: 'clone',
+      resize: {
+        enabled: true
+      }
+  }).data('gridster');  
+
+  rezi(styles);
 };
 
-templates.grid.cell = function(row, col, w, h){
-  row = row || 1;
-  col = col || 1;
-  w = w || 1;
-  h = h || 1;
-  var d = '<li';
-  d += ' data-row="' + row + '" data-col="' + col + '" ';
-  d += ' data-sizex="' + w + '" data-sizey="' + h + '" >';
-  d += Math.round( 1000 * Math.random()) + '</li>';
-  return d;
+
+
+var templates = {
+  grid: grid
 };
 
 $(document).ready(function(){app();});
