@@ -1,7 +1,6 @@
 var grid = require('./grid.js');
 var styles = require('./styles.js');
 var _ = require('../../lib/js/underscore.js');
-var darwa = require('../../lib/js/darwa.js');
 var rezi = require('../../lib/js/rezi.js');
 var Genome = require('./genome.js');
 
@@ -28,8 +27,12 @@ app.saveCurrentModel = function(){
 
 app.currentModel;
 app.genePool = [];
+app.carryingCapacity = 100;
 
 app.createTemplate = function(){
+  if (app.genePool > app.carryingCapacity) {
+    app.genePool.splice(0, 1);
+  }
   var genome = Genome(app.genePool);
   app.currentModel = genome;
   $('body').html(templates.grid(genome));

@@ -45,11 +45,10 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var grid = __webpack_require__(1);
-	var styles = __webpack_require__(3);
+	var styles = __webpack_require__(4);
 	var _ = __webpack_require__(2);
-	var darwa = __webpack_require__(4);
-	var rezi = __webpack_require__(5);
-	var Genome = __webpack_require__(6);
+	var rezi = __webpack_require__(6);
+	var Genome = __webpack_require__(7);
 
 	var app = function(){
 	    app.createTemplate();
@@ -74,8 +73,12 @@
 
 	app.currentModel;
 	app.genePool = [];
+	app.carryingCapacity = 100;
 
 	app.createTemplate = function(){
+	  if (app.genePool > app.carryingCapacity) {
+	    app.genePool.splice(0, 1);
+	  }
 	  var genome = Genome(app.genePool);
 	  app.currentModel = genome;
 	  $('body').html(templates.grid(genome));
@@ -119,15 +122,35 @@
 
 	var _ = __webpack_require__(2);
 
-	var cellPopulator = function(){
-	  var content = [
-	    "<h1>Section Title</h1>",
-	    "<p>some paragraph text</p>",
-	    "<h2>A Header</h2>"
-	    ];
+	var Content = function(html, numberAllowed){
+	  var c = {};
+	  c.html = html || '';
+	  c.numberAllowed = numberAllowed || Infinity;
+	  c.ancillaryClasses = [];
+	  return c;
+	};
 
+	var cellPopulator = function(){
+	  var content = [];
+	  content.push(Content('<h1 class="payload">Title</h1>', 1));
+	  content.push(Content('<p class="payload">some paragraph text</p>', 4));
+	  content.push(Content('<h2 class="payload">Section Title</h2>', 4));
+	  content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
+
+	  var imagePaths = [
+	    'headshot-128.png'
+	    ];
+	/*
+	  for (var i=0;i<imagePaths.length;i++){
+	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
+	    img.ancillaryClasses.push('no-background', 'middled');
+	    content.push(img);
+	  }
+	*/
 	  return content[Math.floor(Math.random() * content.length)];
 	};
+
+	cellPopulator = __webpack_require__(3);
 
 	var grid = function(genome){
 	  var d = '';
@@ -150,11 +173,13 @@
 	  col = col || 1;
 	  w = w || 1;
 	  h = h || 1;
+	  var content = cellPopulator();
+	  console.log(content);
 	  var d = '<li';
-	  d += ' class="' + autoClass + '" ';
+	  d += ' class="' + autoClass + ' ' + content.ancillaryClasses.join(' ') + '" ';
 	  d += ' data-row="' + row + '" data-col="' + col + '" ';
 	  d += ' data-sizex="' + w + '" data-sizey="' + h + '" >';
-	  d += '<div class="payload">' + cellPopulator() + '</div></li>';
+	  d += '' + content.html + '</li>';
 	  return d;
 	};
 
@@ -1718,23 +1743,74 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	var Content = function(html, numberAllowed){
+	  var c = {};
+	  c.html = html || '';
+	  c.numberAllowed = numberAllowed || Infinity;
+	  c.ancillaryClasses = [];
+	  return c;
+	};
+
+	var content = [];
+	  content.push(Content('<h1 class="payload">Title</h1>', 1));
+	  content.push(Content('<p class="payload">some paragraph text</p>', 4));
+	  content.push(Content('<h2 class="payload">Section Title</h2>', 4));
+	  //content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
+	/*
+	  var imagePaths = [
+	    'headshot-128.png'
+	    ];
+
+	  for (var i=0;i<imagePaths.length;i++){
+	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
+	    img.ancillaryClasses.push('no-background', 'middled');
+	    content.push(img);
+	  }
+	*/
+
+	/*
+	var quotes = [
+	  'He who is brave is free.',
+	  'An unimportant thing done well is still unimportant.',
+	  'Where there is life, there is hope'
+	];
+
+	for (var i=0;i<quotes.length;i++){
+	  var q = Content('<p>' + quotes[i] + '</p>');
+	  q.ancillaryClasses.push('topbar', 'middled');
+	  console.log(q);
+	  content.push(Content(quotes[i]));
+	};
+	*/
+
+	var cellPopulator = function(){
+	  return content[Math.floor(Math.random() * content.length)];
+	};
+
+	module.exports = cellPopulator;
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var darwa = __webpack_require__(4);
+	var darwa = __webpack_require__(5);
 
 	var style = function(genome){
 	  var auto1 = {
-	    'background-color': genome.greys[0],
-	    'color': '#fff'
+	    'background-color': '#fff',
+	    'color': '#000'
 	  };
 
 	  var auto2 = {
-	    'background-color': genome.colors[1],
+	    'background-color': genome.backgroundColors[1],
 	    'color': '#fff'
 	  };
 
 	  var auto3 = {
-	    'background-color': genome.colors[2],
+	    'background-color': genome.backgroundColors[2],
 	    'color': '#fff'
 	  };
 
@@ -1743,26 +1819,59 @@
 	    'border': '0px'
 	  };
 
-	  return {
+	  var topbar = {
+	    'background': '#fff',
+	    'color': genome.colors[1],
+	    'text-align': 'center',
+	    'margin': '0',
+	    'padding': '20px'
+	  };
+
+	  var subtext = {
+	    'text-align': 'center'
+	  };
+
+	  var body = {
+	    'background-color': genome.pageBackground
+	  };
+
+	  return {   
+	    'body': body,
+	      
 	    '.payload': {
 	      'margin': '5px'
 	    },
-	    
-	    '.gridster' : {
-	      'li': {
-	        'list-style-type': 'none',
+
+	      '.topbar': topbar,  
+
+	      '.subtext': subtext,
+
+	      '.gridster' : {
+	        'li': {
+	          'list-style-type': 'none',
 	          'background': '#ccc',
-	          'border': genome.borderWidth + 'px solid ' + genome.borderColor
-	      },
-	      'h1, h2': {
-	        'text-align': 'center'
-	      },
+	          'border': genome.borderWidth + 'px solid ' + genome.borderColor,
+
+	        },
+	        'h1, h2': {
+	          'text-align': 'center'
+	        },
 	        'margin': '0 auto',      
 	        'li.auto0': auto0,
 	        'li.auto1': auto1,
 	        'li.auto2': auto2,
-	        'li.auto3': auto3
-	    }
+	        'li.auto3': auto3,
+
+	        'li.no-background': {
+	          'background-color': 'transparent',
+	          'border': '0'
+	        }
+
+	      },
+	      '.middled': {
+	        'text-align': 'center',
+	        'vertical-align': 'middle'
+	      }
 
 	  };
 	};
@@ -1771,7 +1880,7 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function(){
@@ -1868,7 +1977,7 @@
 	}).call(this);
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
@@ -1934,12 +2043,19 @@
 	}).call(this);
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);
-	var darwa = __webpack_require__(4);
-	var simulatedAnnealing = __webpack_require__(7);
+	var darwa = __webpack_require__(5);
+	var simulatedAnnealing = __webpack_require__(8);
+
+	var mutateColors = function(genomeColors, genePoolSize){
+	  // as the genepool grows larger, turn the heat down
+	  for (var i=0;i<genomeColors.length;i++){
+	    genomeColors[i] = darwa.rgb(genomeColors[i], 0.2);
+	  };
+	};
 
 	var rows = [
 	  [1,1,1,1,1,1],
@@ -1961,7 +2077,7 @@
 	  [3,2,1]
 	  ];
 
-	var autoClasses = ['auto0', 'auto1', 'auto2', 'auto3'];
+	var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
 
 	var Genome = function(genePool){
 	  var genome = {};
@@ -2001,15 +2117,33 @@
 	    potentialColors.push(darwa.rgb());
 	  }
 	  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
+	  
 	  genome.greys = [];
 	  for (var i=0;i<3;i++){
 	    var n = Math.floor(Math.random() * 255);
 	    genome.greys.push('rgb(' + n + ',' + n + ',' + n + ')');
 	  }
 
-	  genome.margin = _.random(20);
-	  genome.borderWidth = Math.floor(Math.random() * genome.margin);
-	  genome.borderColor = Math.random() > 0.5 ? '#fff' : '#000';
+	  genome.margin = simulatedAnnealing([_.random(20)], _.pluck(genePool, 'margin'));
+	  genome.borderWidth = simulatedAnnealing([Math.floor(Math.random() * genome.margin)], _.pluck(genePool, 'borderWidth'));
+	  genome.borderColor = simulatedAnnealing([Math.random() > 0.5 ? '#fff' : '#000'], _.pluck(genePool, 'borderColor'));
+	  
+	  genome.backgroundColors = [];
+
+	  genome.liklihoodOfColoredBackground = simulatedAnnealing([Math.random()], _.pluck(genePool, 'liklihoodOfColoredBackground'));
+
+	  if (Math.random() > genome.liklihoodOfColoredBackground){
+	    genome.backgroundColors = genome.backgroundColors.concat(genome.colors);
+	    genome.pageBackground = genome.greys[0];
+	  } else {
+	    genome.backgroundColors = genome.backgroundColors.concat(genome.greys);
+	    genome.pageBackground = genome.colors[0];
+	  }
+
+	  console.log(genome);
+
+	  mutateColors(genome.colors, genePool.length);
+	  
 	  return genome;
 	};
 
@@ -2017,11 +2151,11 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);
-	var darwa = __webpack_require__(4);
+	var darwa = __webpack_require__(5);
 
 	var simulatedAnnealing = function(mutants, ancestors){
 	  // takes two arrays, one with mutatants, the other ancestors

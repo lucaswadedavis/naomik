@@ -2,6 +2,13 @@ var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
 var simulatedAnnealing = require('./simulated_annealing.js');
 
+var mutateColors = function(genomeColors, genePoolSize){
+  // as the genepool grows larger, turn the heat down
+  for (var i=0;i<genomeColors.length;i++){
+    genomeColors[i] = darwa.rgb(genomeColors[i], 0.2);
+  };
+};
+
 var rows = [
   [1,1,1,1,1,1],
   [2,2,2],
@@ -22,7 +29,7 @@ var rows = [
   [3,2,1]
   ];
 
-var autoClasses = ['auto0', 'auto1', 'auto2', 'auto3'];
+var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
 
 var Genome = function(genePool){
   var genome = {};
@@ -62,15 +69,33 @@ var Genome = function(genePool){
     potentialColors.push(darwa.rgb());
   }
   genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
+  
   genome.greys = [];
   for (var i=0;i<3;i++){
     var n = Math.floor(Math.random() * 255);
     genome.greys.push('rgb(' + n + ',' + n + ',' + n + ')');
   }
 
-  genome.margin = _.random(20);
-  genome.borderWidth = Math.floor(Math.random() * genome.margin);
-  genome.borderColor = Math.random() > 0.5 ? '#fff' : '#000';
+  genome.margin = simulatedAnnealing([_.random(20)], _.pluck(genePool, 'margin'));
+  genome.borderWidth = simulatedAnnealing([Math.floor(Math.random() * genome.margin)], _.pluck(genePool, 'borderWidth'));
+  genome.borderColor = simulatedAnnealing([Math.random() > 0.5 ? '#fff' : '#000'], _.pluck(genePool, 'borderColor'));
+  
+  genome.backgroundColors = [];
+
+  genome.liklihoodOfColoredBackground = simulatedAnnealing([Math.random()], _.pluck(genePool, 'liklihoodOfColoredBackground'));
+
+  if (Math.random() > genome.liklihoodOfColoredBackground){
+    genome.backgroundColors = genome.backgroundColors.concat(genome.colors);
+    genome.pageBackground = genome.greys[0];
+  } else {
+    genome.backgroundColors = genome.backgroundColors.concat(genome.greys);
+    genome.pageBackground = genome.colors[0];
+  }
+
+  console.log(genome);
+
+  mutateColors(genome.colors, genePool.length);
+  
   return genome;
 };
 
