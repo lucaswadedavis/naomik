@@ -36,13 +36,25 @@ app.createTemplate = function(){
   var gridster = $('.gridster ul').gridster({
     widget_margins: [genome.margin, genome.margin],
       max_cols: 6,
-      widget_base_dimensions: [150, 100],
-      helper: 'clone',
+      draggable: {
+        stop: function(e, ui, $widget){
+          console.log('drag stop');
+          console.log(this.serialize());
+          app.currentModel.cells = this.serialize();
+        }
+      },
       resize: {
-        enabled: true
-      }
+        enabled: true,
+        stop: function(e, ui, $widget){
+          console.log('resize stop');
+          console.log(this.serialize());
+          app.currentModel.cells = this.serialize();
+        }
+      },
+      widget_base_dimensions: [150, 100],
+      helper: 'clone'
   }).data('gridster');  
-
+  
   rezi(styles(genome));
 };
 

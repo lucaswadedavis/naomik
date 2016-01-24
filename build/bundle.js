@@ -45,9 +45,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var grid = __webpack_require__(1);
-	var styles = __webpack_require__(2);
-	var _ = __webpack_require__(4);
-	var darwa = __webpack_require__(3);
+	var styles = __webpack_require__(3);
+	var _ = __webpack_require__(2);
+	var darwa = __webpack_require__(4);
 	var rezi = __webpack_require__(5);
 	var Genome = __webpack_require__(6);
 
@@ -82,13 +82,25 @@
 	  var gridster = $('.gridster ul').gridster({
 	    widget_margins: [genome.margin, genome.margin],
 	      max_cols: 6,
-	      widget_base_dimensions: [150, 100],
-	      helper: 'clone',
+	      draggable: {
+	        stop: function(e, ui, $widget){
+	          console.log('drag stop');
+	          console.log(this.serialize());
+	          app.currentModel.cells = this.serialize();
+	        }
+	      },
 	      resize: {
-	        enabled: true
-	      }
+	        enabled: true,
+	        stop: function(e, ui, $widget){
+	          console.log('resize stop');
+	          console.log(this.serialize());
+	          app.currentModel.cells = this.serialize();
+	        }
+	      },
+	      widget_base_dimensions: [150, 100],
+	      helper: 'clone'
 	  }).data('gridster');  
-
+	  
 	  rezi(styles(genome));
 	};
 
@@ -103,7 +115,9 @@
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(2);
 
 	var cellPopulator = function(){
 	  var content = [
@@ -120,14 +134,10 @@
 	  d += '<div class="gridster-wrapper">';
 	  d += '<div class="gridster">';
 	  d += '<ul>';
-	  var rowIndex = 1;
-	  for (var i=0;i<genome.rows.length;i++){
-	    var colIndex = 1;
-	    for (var j=0;j<genome.rows[i].length;j++){
-	      d += grid.cell(rowIndex, colIndex, genome.rows[i][j].width, genome.rows[i][j].height, genome.rows[i][j].autoClass);
-	      colIndex += genome.rows[i][j].width;
-	    }
-	    rowIndex += genome.rows[i][0].height;
+	  for (var i=0;i<genome.cells.length;i++){
+	    var c = genome.cells[i];
+	    var autoClass = _.sample(genome.autoClasses);
+	    d += grid.cell(c.row, c.col, c.size_x, c.size_y, autoClass);
 	  }
 	  d += '<ul>';
 	  d += '</div>';
@@ -154,157 +164,6 @@
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var darwa = __webpack_require__(3);
-
-	var style = function(genome){
-	  var auto1 = {
-	    'background-color': genome.greys[0],
-	    'color': '#fff'
-	  };
-
-	  var auto2 = {
-	    'background-color': genome.colors[1],
-	    'color': '#fff'
-	  };
-
-	  var auto3 = {
-	    'background-color': genome.colors[2],
-	    'color': '#fff'
-	  };
-
-	  var auto0 = {
-	    'background': 'transparent',
-	    'border': '0px'
-	  };
-
-	  return {
-	    '.payload': {
-	      'margin': '5px'
-	    },
-	    
-	    '.gridster' : {
-	      'li': {
-	        'list-style-type': 'none',
-	          'background': '#ccc',
-	          'border': genome.borderWidth + 'px solid ' + genome.borderColor
-	      },
-	      'h1, h2': {
-	        'text-align': 'center'
-	      },
-	        'margin': '0 auto',      
-	        'li.auto0': auto0,
-	        'li.auto1': auto1,
-	        'li.auto2': auto2,
-	        'li.auto3': auto3
-	    }
-
-	  };
-	};
-
-	module.exports = style;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function(){
-	  
-	  var root = this;
-	  
-	  var darwa = function(x){
-	    var mutation = null;
-	    if (typeof x === 'number'){
-	      mutation = darwa.float(x);
-	    }
-	    if (typeof x === 'string'){
-	      if (x.substr(0,4) === 'rgb('){
-	        mutation = darwa.rgb(x);
-	      } else {
-	        mutation = darwa.string(x);
-	      }
-	    }
-	    
-	    
-	    return mutation;  
-	  };
-	  
-	  darwa.letter = function(letter){
-	    if (letter === undefined){return null;}
-	    var vowels = ("aeiouy").split("");
-	    var consonants = ("bcdfghjklmnpqrstvwxyz").split("");
-	    if (vowels.indexOf(letter.toLowerCase())>-1){
-	      letter = darwa.sample(vowels);
-	    } else if (consonants.indexOf(letter.toLowerCase())>-1){
-	      letter = darwa.sample(consonants);
-	    }
-	    console.log(letter);
-	    return letter;
-	  };
-	  
-	  darwa.string = function(str){
-	    if (str === undefined){return null;}
-	    str = str.split("");
-	    var index = Math.floor(Math.random()*str.length);
-	    str[index] = darwa.letter(str[index]);
-	    for (var i=0;i<Math.floor(str.length/100);i++){
-	      index = Math.floor(Math.random()*str.length);
-	      str[index] = darwa.letter(str[index]);
-	    }
-	    return str.join("");
-	  };
-	  
-	  darwa.sample = function(arr){
-	    if (arr === undefined){return null;}
-	    return arr[Math.floor(Math.random()*arr.length)];
-	  };
-	  
-	  darwa.float = function(x,delta){
-	    if (delta === undefined){delta = 0.5;}
-	    if (typeof x !== 'number'){return null;}
-	    return x - (x*delta) + (Math.random()*(2*x*delta));
-	  };
-	  
-	  darwa.int = function(x,delta){
-	    if (typeof x !== 'number'){return null;}
-	    if (delta === undefined){delta = 0.5;}
-	    if (x === undefined){ x = 50;}
-	    return Math.floor(darwa.float(x,delta));
-	  }; 
-	  
-	    
-	  darwa.rgb = function(x, delta){
-	    if (delta === undefined){delta = 0.9;}
-	    if ( x === undefined ){ x = "rgb(128,128,128)"; }
-	    if (typeof x!=="string"){return null;}
-	    if (!x.match(/^rgb/) ){return null;}
-	    
-	    var colors = x.substr(4).split(',');
-	    if (colors.length !==3 ){return null;}
-	    for (var i=0;i<colors.length;i++){
-	      colors[i] = Math.floor( darwa.float( parseInt(colors[i], 10), delta ) );
-	      colors[i] = Math.max(colors[i], 0);
-	      colors[i] = Math.min(colors[i], 255);
-	    }
-	    return "rgb(" + ( colors.join(",") ) + ")";
-	  
-	  };
-	  
-	  if (true) {
-	    if (typeof module !== 'undefined' && module.exports) {
-	      exports = module.exports = darwa;
-	    }
-	    exports.darwa = darwa;
-	  } else {
-	    root.darwa= darwa;
-	  }
-	        
-	}).call(this);
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.8.3
@@ -1858,6 +1717,157 @@
 
 
 /***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var darwa = __webpack_require__(4);
+
+	var style = function(genome){
+	  var auto1 = {
+	    'background-color': genome.greys[0],
+	    'color': '#fff'
+	  };
+
+	  var auto2 = {
+	    'background-color': genome.colors[1],
+	    'color': '#fff'
+	  };
+
+	  var auto3 = {
+	    'background-color': genome.colors[2],
+	    'color': '#fff'
+	  };
+
+	  var auto0 = {
+	    'background': 'transparent',
+	    'border': '0px'
+	  };
+
+	  return {
+	    '.payload': {
+	      'margin': '5px'
+	    },
+	    
+	    '.gridster' : {
+	      'li': {
+	        'list-style-type': 'none',
+	          'background': '#ccc',
+	          'border': genome.borderWidth + 'px solid ' + genome.borderColor
+	      },
+	      'h1, h2': {
+	        'text-align': 'center'
+	      },
+	        'margin': '0 auto',      
+	        'li.auto0': auto0,
+	        'li.auto1': auto1,
+	        'li.auto2': auto2,
+	        'li.auto3': auto3
+	    }
+
+	  };
+	};
+
+	module.exports = style;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function(){
+	  
+	  var root = this;
+	  
+	  var darwa = function(x){
+	    var mutation = null;
+	    if (typeof x === 'number'){
+	      mutation = darwa.float(x);
+	    }
+	    if (typeof x === 'string'){
+	      if (x.substr(0,4) === 'rgb('){
+	        mutation = darwa.rgb(x);
+	      } else {
+	        mutation = darwa.string(x);
+	      }
+	    }
+	    
+	    
+	    return mutation;  
+	  };
+	  
+	  darwa.letter = function(letter){
+	    if (letter === undefined){return null;}
+	    var vowels = ("aeiouy").split("");
+	    var consonants = ("bcdfghjklmnpqrstvwxyz").split("");
+	    if (vowels.indexOf(letter.toLowerCase())>-1){
+	      letter = darwa.sample(vowels);
+	    } else if (consonants.indexOf(letter.toLowerCase())>-1){
+	      letter = darwa.sample(consonants);
+	    }
+	    console.log(letter);
+	    return letter;
+	  };
+	  
+	  darwa.string = function(str){
+	    if (str === undefined){return null;}
+	    str = str.split("");
+	    var index = Math.floor(Math.random()*str.length);
+	    str[index] = darwa.letter(str[index]);
+	    for (var i=0;i<Math.floor(str.length/100);i++){
+	      index = Math.floor(Math.random()*str.length);
+	      str[index] = darwa.letter(str[index]);
+	    }
+	    return str.join("");
+	  };
+	  
+	  darwa.sample = function(arr){
+	    if (arr === undefined){return null;}
+	    return arr[Math.floor(Math.random()*arr.length)];
+	  };
+	  
+	  darwa.float = function(x,delta){
+	    if (delta === undefined){delta = 0.5;}
+	    if (typeof x !== 'number'){return null;}
+	    return x - (x*delta) + (Math.random()*(2*x*delta));
+	  };
+	  
+	  darwa.int = function(x,delta){
+	    if (typeof x !== 'number'){return null;}
+	    if (delta === undefined){delta = 0.5;}
+	    if (x === undefined){ x = 50;}
+	    return Math.floor(darwa.float(x,delta));
+	  }; 
+	  
+	    
+	  darwa.rgb = function(x, delta){
+	    if (delta === undefined){delta = 0.9;}
+	    if ( x === undefined ){ x = "rgb(128,128,128)"; }
+	    if (typeof x!=="string"){return null;}
+	    if (!x.match(/^rgb/) ){return null;}
+	    
+	    var colors = x.substr(4).split(',');
+	    if (colors.length !==3 ){return null;}
+	    for (var i=0;i<colors.length;i++){
+	      colors[i] = Math.floor( darwa.float( parseInt(colors[i], 10), delta ) );
+	      colors[i] = Math.max(colors[i], 0);
+	      colors[i] = Math.min(colors[i], 255);
+	    }
+	    return "rgb(" + ( colors.join(",") ) + ")";
+	  
+	  };
+	  
+	  if (true) {
+	    if (typeof module !== 'undefined' && module.exports) {
+	      exports = module.exports = darwa;
+	    }
+	    exports.darwa = darwa;
+	  } else {
+	    root.darwa= darwa;
+	  }
+	        
+	}).call(this);
+
+/***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1927,8 +1937,8 @@
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _ = __webpack_require__(4);
-	var darwa = __webpack_require__(3);
+	var _ = __webpack_require__(2);
+	var darwa = __webpack_require__(4);
 	var simulatedAnnealing = __webpack_require__(7);
 
 	var rows = [
@@ -1955,16 +1965,37 @@
 
 	var Genome = function(genePool){
 	  var genome = {};
+	  genome.cells = [];
+	  genome.autoClasses = autoClasses;
+	  // this needs some love later. genome.rows is only an intermediate step
 	  genome.rows = [];
 	  for (var i=0;i<3;i++){
 	    var row = _.sample(rows);
 	    var genomeRow = [];
 	    var height = Math.ceil(Math.random() * 3);
 	    for (var j=0;j<row.length;j++){
-	      genomeRow.push({width: row[j], height: height, autoClass: _.sample(autoClasses)});
+	      genomeRow.push({width: row[j], height: height});
 	    }
 	    genome.rows.push(genomeRow);
 	  }
+
+	  var rowIndex = 1;
+	  for (var i=0;i<genome.rows.length;i++){
+	    var colIndex = 1;
+	    for (var j=0;j<genome.rows[i].length;j++){
+	      genome.cells.push({
+	        row: rowIndex, 
+	        col: colIndex,
+	        size_x: genome.rows[i][j].width,
+	        size_y: genome.rows[i][j].height,
+	      });
+	      colIndex += genome.rows[i][j].width;
+	    }
+	    rowIndex += genome.rows[i][0].height;
+	  }
+	  genome.cells = simulatedAnnealing([genome.cells], _.pluck(genePool, 'cells'));
+	  
+	  
 	  var potentialColors = [];
 	  for (var i=0;i<3;i++){
 	    potentialColors.push(darwa.rgb());
@@ -1989,8 +2020,8 @@
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _ = __webpack_require__(4);
-	var darwa = __webpack_require__(3);
+	var _ = __webpack_require__(2);
+	var darwa = __webpack_require__(4);
 
 	var simulatedAnnealing = function(mutants, ancestors){
 	  // takes two arrays, one with mutatants, the other ancestors

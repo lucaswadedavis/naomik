@@ -1,3 +1,5 @@
+var _ = require('../../lib/js/underscore.js');
+
 var cellPopulator = function(){
   var content = [
     "<h1>Section Title</h1>",
@@ -13,14 +15,10 @@ var grid = function(genome){
   d += '<div class="gridster-wrapper">';
   d += '<div class="gridster">';
   d += '<ul>';
-  var rowIndex = 1;
-  for (var i=0;i<genome.rows.length;i++){
-    var colIndex = 1;
-    for (var j=0;j<genome.rows[i].length;j++){
-      d += grid.cell(rowIndex, colIndex, genome.rows[i][j].width, genome.rows[i][j].height, genome.rows[i][j].autoClass);
-      colIndex += genome.rows[i][j].width;
-    }
-    rowIndex += genome.rows[i][0].height;
+  for (var i=0;i<genome.cells.length;i++){
+    var c = genome.cells[i];
+    var autoClass = _.sample(genome.autoClasses);
+    d += grid.cell(c.row, c.col, c.size_x, c.size_y, autoClass);
   }
   d += '<ul>';
   d += '</div>';
