@@ -37,7 +37,7 @@ grid.cell = function(row, col, w, h, autoClass){
   d += ' class="' + autoClass + '" ';
   d += ' data-row="' + row + '" data-col="' + col + '" ';
   d += ' data-sizex="' + w + '" data-sizey="' + h + '" >';
-  d += cellPopulator() + '</li>';
+  d += '<div class="payload">' + cellPopulator() + '</div></li>';
   return d;
 };
 

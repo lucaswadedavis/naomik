@@ -3,38 +3,45 @@ var styles = require('./styles.js');
 var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
 var rezi = require('../../lib/js/rezi.js');
+var Genome = require('./genome.js');
 
-var rows = [
-  [1,1,1,1,1,1],
-  [2,2,2],
-  [3,3],
-  [2,4],
-  [4,2],
-  [6]
-  ];
-
-var autoClasses = ['auto1', 'auto2', 'auto3'];
-
-  var genome = {};
-  genome.rows = [];
-for (var i=0;i<10;i++){
-  var row = _.sample(rows);
-  var genomeRow = [];
-  var height = Math.ceil(Math.random() * 3);
-  for (var j=0;j<row.length;j++){
-    genomeRow.push({width: row[j], height: height, autoClass: _.sample(autoClasses)});
+// takes two arrays, one with mutatants, the other ancestors
+var simulatedAnnealing = function(mutants, ancestors){
+  var a = ancestors.length;
+  var m = (9 * a * a) / ((a * a) + 100);
+  var d = 1 + _.random(10);
+  if (m > d){
+    return _.sample(ancestors);
+  } else {
+    return _.sample(mutants);
   }
-  genome.rows.push(genomeRow);
-}
-genome.colors = [];
-for (var i=0;i<3;i++){
-  genome.colors.push(darwa.rgb());
-}
+};
 
 var app = function(){
+    app.createTemplate();
+    app.listeners();
+  };
+
+app.listeners = function(){
+  var KEYS = {L: 108, N: 110};
+  $('body').keypress(function(e){
+    if (e.which === KEYS.L){
+      app.saveCurrentModel()
+    } else if (e.which === KEYS.N) {
+      app.createTemplate();
+    }
+  });
+};
+
+app.saveCurrentModel = function(){
+  console.log('saved! (not really...)');
+};
+
+app.createTemplate = function(){
+  var genome = Genome();
   $('body').html(templates.grid(genome));
   var gridster = $('.gridster ul').gridster({
-    widget_margins: [5, 5],
+    widget_margins: [genome.margin, genome.margin],
       max_cols: 6,
       widget_base_dimensions: [150, 100],
       helper: 'clone',
@@ -43,10 +50,8 @@ var app = function(){
       }
   }).data('gridster');  
 
-  rezi(styles);
+  rezi(styles(genome));
 };
-
-
 
 var templates = {
   grid: grid
