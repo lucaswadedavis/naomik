@@ -73,7 +73,7 @@
 
 	app.currentModel;
 	app.genePool = [];
-	app.carryingCapacity = 100;
+	app.carryingCapacity = 10000;
 
 	app.createTemplate = function(){
 	  if (app.genePool > app.carryingCapacity) {
@@ -1964,7 +1964,28 @@
 	    return "rgb(" + ( colors.join(",") ) + ")";
 	  
 	  };
-	  
+	 
+	  darwa.hsl = function(x, delta){
+	    if (delta === undefined){delta = 0.9;}
+	    if (x === undefined){ x = 'hsl(180,50%,50%)';}
+
+	    var colors = x.substr(4).split(',');
+	    if (colors.length !==3){return null;}
+	    var hue = Math.floor(darwa.int( parseInt(colors[0], 10), delta));
+	    hue = Math.max(hue, 0);
+	    hue = Math.min(hue, 360);
+
+	    var saturation = Math.floor(darwa.int(parseInt(colors[1], 10), delta));
+	    saturation = Math.max(saturation, 0);
+	    saturation = Math.min(saturation, 100);
+
+	    var lightness = Math.floor(darwa.int(parseInt(colors[2], 10), delta));
+	    lightness = Math.max(lightness, 0);
+	    lightness = Math.min(lightness, 100);
+
+	    return 'hsl(' + hue + ',' + saturation + '%,' + lightness + '%)';
+	  };
+
 	  if (true) {
 	    if (typeof module !== 'undefined' && module.exports) {
 	      exports = module.exports = darwa;
@@ -1975,6 +1996,7 @@
 	  }
 	        
 	}).call(this);
+
 
 /***/ },
 /* 6 */
@@ -2049,11 +2071,11 @@
 	var _ = __webpack_require__(2);
 	var darwa = __webpack_require__(5);
 	var simulatedAnnealing = __webpack_require__(8);
-
+	window.darwa = darwa;
 	var mutateColors = function(genomeColors, genePoolSize){
 	  // as the genepool grows larger, turn the heat down
 	  for (var i=0;i<genomeColors.length;i++){
-	    genomeColors[i] = darwa.rgb(genomeColors[i], 0.2);
+	    genomeColors[i] = darwa.hsl(genomeColors[i], 0.2);
 	  };
 	};
 
@@ -2110,14 +2132,27 @@
 	    rowIndex += genome.rows[i][0].height;
 	  }
 	  genome.cells = simulatedAnnealing([genome.cells], _.pluck(genePool, 'cells'));
-	  
-	  
+
+	  genome.hue1 = simulatedAnnealing([_.random(360)], _.pluck(genePool, 'hue1'));
+	  genome.hue2 =  simulatedAnnealing([_.random(360)], _.pluck(genePool, 'hue2'));
+	  genome.saturation1 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation1'));
+	  genome.saturation2 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation2'));
+	  genome.lightness1 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness1'));
+	  genome.lightness2 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness2'));
+	 
+	  /*
 	  var potentialColors = [];
 	  for (var i=0;i<3;i++){
 	    potentialColors.push(darwa.rgb());
 	  }
 	  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
-	  
+	  */
+	  genome.colors = [];
+	  genome.colors.push('hsl(' + genome.hue1 + ',' + genome.saturation1 + '%,' + genome.lightness1 + '%)');
+	  genome.colors.push('hsl(' + genome.hue2 + ',' + genome.saturation2 + '%,' + genome.lightness2 + '%)');
+
+	  genome.colors = simulatedAnnealing([genome.colors], _.pluck(genePool, 'colors'));
+
 	  genome.greys = [];
 	  for (var i=0;i<3;i++){
 	    var n = Math.floor(Math.random() * 255);
@@ -2139,8 +2174,6 @@
 	    genome.backgroundColors = genome.backgroundColors.concat(genome.greys);
 	    genome.pageBackground = genome.colors[0];
 	  }
-
-	  console.log(genome);
 
 	  mutateColors(genome.colors, genePool.length);
 	  

@@ -27,7 +27,7 @@ app.saveCurrentModel = function(){
 
 app.currentModel;
 app.genePool = [];
-app.carryingCapacity = 100;
+app.carryingCapacity = 10000;
 
 app.createTemplate = function(){
   if (app.genePool > app.carryingCapacity) {

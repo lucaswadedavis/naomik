@@ -1,11 +1,11 @@
 var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
 var simulatedAnnealing = require('./simulated_annealing.js');
-
+window.darwa = darwa;
 var mutateColors = function(genomeColors, genePoolSize){
   // as the genepool grows larger, turn the heat down
   for (var i=0;i<genomeColors.length;i++){
-    genomeColors[i] = darwa.rgb(genomeColors[i], 0.2);
+    genomeColors[i] = darwa.hsl(genomeColors[i], 0.2);
   };
 };
 
@@ -62,14 +62,27 @@ var Genome = function(genePool){
     rowIndex += genome.rows[i][0].height;
   }
   genome.cells = simulatedAnnealing([genome.cells], _.pluck(genePool, 'cells'));
-  
-  
+
+  genome.hue1 = simulatedAnnealing([_.random(360)], _.pluck(genePool, 'hue1'));
+  genome.hue2 =  simulatedAnnealing([_.random(360)], _.pluck(genePool, 'hue2'));
+  genome.saturation1 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation1'));
+  genome.saturation2 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation2'));
+  genome.lightness1 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness1'));
+  genome.lightness2 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness2'));
+ 
+  /*
   var potentialColors = [];
   for (var i=0;i<3;i++){
     potentialColors.push(darwa.rgb());
   }
   genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
-  
+  */
+  genome.colors = [];
+  genome.colors.push('hsl(' + genome.hue1 + ',' + genome.saturation1 + '%,' + genome.lightness1 + '%)');
+  genome.colors.push('hsl(' + genome.hue2 + ',' + genome.saturation2 + '%,' + genome.lightness2 + '%)');
+
+  genome.colors = simulatedAnnealing([genome.colors], _.pluck(genePool, 'colors'));
+
   genome.greys = [];
   for (var i=0;i<3;i++){
     var n = Math.floor(Math.random() * 255);
@@ -91,8 +104,6 @@ var Genome = function(genePool){
     genome.backgroundColors = genome.backgroundColors.concat(genome.greys);
     genome.pageBackground = genome.colors[0];
   }
-
-  console.log(genome);
 
   mutateColors(genome.colors, genePool.length);
   
