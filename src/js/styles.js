@@ -30,7 +30,7 @@ var style = function(genome){
       'li': {
         'list-style-type': 'none',
           'background': '#ccc',
-          'border': genome.borderWidth + 'px solid ' + genome.greys[0]
+          'border': genome.borderWidth + 'px solid ' + genome.borderColor
       },
       'h1, h2': {
         'text-align': 'center'

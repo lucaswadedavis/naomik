@@ -1,5 +1,6 @@
 var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
+var simulatedAnnealing = require('./simulated_annealing.js');
 
 var rows = [
   [1,1,1,1,1,1],
@@ -23,10 +24,10 @@ var rows = [
 
 var autoClasses = ['auto0', 'auto1', 'auto2', 'auto3'];
 
-var Genome = function(ancestors){
+var Genome = function(genePool){
   var genome = {};
   genome.rows = [];
-  for (var i=0;i<10;i++){
+  for (var i=0;i<3;i++){
     var row = _.sample(rows);
     var genomeRow = [];
     var height = Math.ceil(Math.random() * 3);
@@ -35,10 +36,11 @@ var Genome = function(ancestors){
     }
     genome.rows.push(genomeRow);
   }
-  genome.colors = [];
+  var potentialColors = [];
   for (var i=0;i<3;i++){
-    genome.colors.push(darwa.rgb());
+    potentialColors.push(darwa.rgb());
   }
+  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
   genome.greys = [];
   for (var i=0;i<3;i++){
     var n = Math.floor(Math.random() * 255);
@@ -47,6 +49,7 @@ var Genome = function(ancestors){
 
   genome.margin = _.random(20);
   genome.borderWidth = Math.floor(Math.random() * genome.margin);
+  genome.borderColor = Math.random() > 0.5 ? '#fff' : '#000';
   return genome;
 };
 

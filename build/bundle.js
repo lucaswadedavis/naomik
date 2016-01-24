@@ -51,18 +51,6 @@
 	var rezi = __webpack_require__(5);
 	var Genome = __webpack_require__(6);
 
-	// takes two arrays, one with mutatants, the other ancestors
-	var simulatedAnnealing = function(mutants, ancestors){
-	  var a = ancestors.length;
-	  var m = (9 * a * a) / ((a * a) + 100);
-	  var d = 1 + _.random(10);
-	  if (m > d){
-	    return _.sample(ancestors);
-	  } else {
-	    return _.sample(mutants);
-	  }
-	};
-
 	var app = function(){
 	    app.createTemplate();
 	    app.listeners();
@@ -80,11 +68,16 @@
 	};
 
 	app.saveCurrentModel = function(){
-	  console.log('saved! (not really...)');
+	  console.log('saved');
+	  app.genePool.push(app.currentModel);
 	};
 
+	app.currentModel;
+	app.genePool = [];
+
 	app.createTemplate = function(){
-	  var genome = Genome();
+	  var genome = Genome(app.genePool);
+	  app.currentModel = genome;
 	  $('body').html(templates.grid(genome));
 	  var gridster = $('.gridster ul').gridster({
 	    widget_margins: [genome.margin, genome.margin],
@@ -195,7 +188,7 @@
 	      'li': {
 	        'list-style-type': 'none',
 	          'background': '#ccc',
-	          'border': genome.borderWidth + 'px solid ' + genome.greys[0]
+	          'border': genome.borderWidth + 'px solid ' + genome.borderColor
 	      },
 	      'h1, h2': {
 	        'text-align': 'center'
@@ -1936,6 +1929,7 @@
 
 	var _ = __webpack_require__(4);
 	var darwa = __webpack_require__(3);
+	var simulatedAnnealing = __webpack_require__(7);
 
 	var rows = [
 	  [1,1,1,1,1,1],
@@ -1959,10 +1953,10 @@
 
 	var autoClasses = ['auto0', 'auto1', 'auto2', 'auto3'];
 
-	var Genome = function(ancestors){
+	var Genome = function(genePool){
 	  var genome = {};
 	  genome.rows = [];
-	  for (var i=0;i<10;i++){
+	  for (var i=0;i<3;i++){
 	    var row = _.sample(rows);
 	    var genomeRow = [];
 	    var height = Math.ceil(Math.random() * 3);
@@ -1971,10 +1965,11 @@
 	    }
 	    genome.rows.push(genomeRow);
 	  }
-	  genome.colors = [];
+	  var potentialColors = [];
 	  for (var i=0;i<3;i++){
-	    genome.colors.push(darwa.rgb());
+	    potentialColors.push(darwa.rgb());
 	  }
+	  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
 	  genome.greys = [];
 	  for (var i=0;i<3;i++){
 	    var n = Math.floor(Math.random() * 255);
@@ -1983,10 +1978,48 @@
 
 	  genome.margin = _.random(20);
 	  genome.borderWidth = Math.floor(Math.random() * genome.margin);
+	  genome.borderColor = Math.random() > 0.5 ? '#fff' : '#000';
 	  return genome;
 	};
 
 	module.exports = Genome;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(4);
+	var darwa = __webpack_require__(3);
+
+	var simulatedAnnealing = function(mutants, ancestors){
+	  // takes two arrays, one with mutatants, the other ancestors
+	  var a = ancestors.length;
+	  var m = (9 * a * a) / ((a * a) + 100);
+	  var d = 1 + _.random(10);
+	  if (m > d){
+	    return _.sample(ancestors);
+	  } else {
+	    return _.sample(mutants);
+	  }
+	};
+
+	/*
+	var simulatedAnnealing = function(ancestor, ancestorCount){
+	  // takes two arrays, one with mutatants, the other ancestors
+	  var a = ancestorCount;
+	  var m = (9 * a * a) / ((a * a) + 100);
+	  var d = 1 + _.random(10);
+	  if (m > d){
+	    // don't mutate
+	    return ancestor
+	  } else {
+	    return darwa(ancestor, delta);
+	  }
+	};
+	*/
+
+	module.exports = simulatedAnnealing;
 
 
 /***/ }

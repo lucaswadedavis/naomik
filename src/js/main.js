@@ -5,18 +5,6 @@ var darwa = require('../../lib/js/darwa.js');
 var rezi = require('../../lib/js/rezi.js');
 var Genome = require('./genome.js');
 
-// takes two arrays, one with mutatants, the other ancestors
-var simulatedAnnealing = function(mutants, ancestors){
-  var a = ancestors.length;
-  var m = (9 * a * a) / ((a * a) + 100);
-  var d = 1 + _.random(10);
-  if (m > d){
-    return _.sample(ancestors);
-  } else {
-    return _.sample(mutants);
-  }
-};
-
 var app = function(){
     app.createTemplate();
     app.listeners();
@@ -34,11 +22,16 @@ app.listeners = function(){
 };
 
 app.saveCurrentModel = function(){
-  console.log('saved! (not really...)');
+  console.log('saved');
+  app.genePool.push(app.currentModel);
 };
 
+app.currentModel;
+app.genePool = [];
+
 app.createTemplate = function(){
-  var genome = Genome();
+  var genome = Genome(app.genePool);
+  app.currentModel = genome;
   $('body').html(templates.grid(genome));
   var gridster = $('.gridster ul').gridster({
     widget_margins: [genome.margin, genome.margin],
