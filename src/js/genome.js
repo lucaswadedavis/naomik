@@ -1,8 +1,6 @@
 var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
 var simulatedAnnealing = require('./simulated_annealing.js');
-var content = require('./content.js');
-
 
 var mutateColors = function(genomeColors, genePoolSize){
   // as the genepool grows larger, turn the heat down
@@ -32,9 +30,6 @@ var rows = [
   ];
 
 var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
-
-var cellContents = content();
-console.log(cellContents);
 
 var Genome = function(genePool){
   var genome = {};

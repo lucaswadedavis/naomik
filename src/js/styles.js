@@ -37,9 +37,33 @@ var style = function(genome){
     'background-color': genome.pageBackground
   };
 
+  var siteWrapper = {
+    'border': '0',
+    'margin': '0',
+    'padding': '0'
+  };
+
+  var controls = {
+    'position': 'fixed',
+    'z-index': '2',
+    'left': window.innerWidth - 130 + 'px',
+    'top': window.innerHeight - 50 + 'px',
+      '#love': {
+        'background-color': '#3f7',
+        'color': '#000',
+        'cursor': 'pointer'
+      },
+      '#next': {
+        'background-color': '#f37',
+        'color': '#fff',
+        'cursor': 'pointer'
+    }
+  };
+
   return {   
     'body': body,
-      
+    '.site-wrapper': siteWrapper,
+
     '.payload': {
       'margin': '5px'
     },
@@ -47,6 +71,8 @@ var style = function(genome){
       '.topbar': topbar,  
 
       '.subtext': subtext,
+
+      '.controls': controls,
 
       '.gridster' : {
         'li': {

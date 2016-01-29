@@ -49,25 +49,13 @@
 	var _ = __webpack_require__(2);
 	var rezi = __webpack_require__(5);
 	var Genome = __webpack_require__(6);
-	var cellsContent = __webpack_require__(9);
-
-	/*
-	var makeEditable = function(className){ 
-	  var pennables = document.getElementsByClassName(className || 'pennable');
-	  for (var i=0;i<pennables.length;i++){
-	    new Pen(pennables[i]);
-	  }
-	};
-	*/
-
+	var cellsContent = __webpack_require__(8);
 	var makeEditable = function(className){
-	// Sample: Massive Inline Editing
-	 
+	  // Sample: Massive Inline Editing
+
 	  for (var key in app.content) {
 	    var editor = CKEDITOR.inline(key);
 	    editor.on('change', function(event){
-	      console.log(event.editor.getData());
-	      console.log(event.editor.container.$.id);
 	      app.content[event.editor.container.$.id].text = event.editor.getData();
 	    });
 	  }
@@ -81,43 +69,55 @@
 
 	  CKEDITOR.on( 'instanceCreated', function ( event ) {
 	    var editor = event.editor,
-	        element = editor.element;
+	  element = editor.element;
 
-	    // Customize editors for headers and tag list.
-	    // These editors do not need features like smileys, templates, iframes etc.
-	    if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
-	      // Customize the editor configuration on "configLoaded" event,
-	      // which is fired after the configuration file loading and
-	      // execution. This makes it possible to change the
-	      // configuration before the editor initialization takes place.
-	      editor.on( 'configLoaded', function () {
+	  // Customize editors for headers and tag list.
+	  // These editors do not need features like smileys, templates, iframes etc.
+	  if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
+	    // Customize the editor configuration on "configLoaded" event,
+	    // which is fired after the configuration file loading and
+	    // execution. This makes it possible to change the
+	    // configuration before the editor initialization takes place.
+	    editor.on( 'configLoaded', function () {
 
-	        // Remove redundant plugins to make the editor simpler.
-	        editor.config.removePlugins = 'colorbutton,find,flash,font,' +
-	            'forms,iframe,image,newpage,removeformat,' +
-	            'smiley,specialchar,stylescombo,templates';
+	      // Remove redundant plugins to make the editor simpler.
+	      editor.config.removePlugins = 'colorbutton,find,flash,font,' +
+	      'forms,iframe,image,newpage,removeformat,' +
+	      'smiley,specialchar,stylescombo,templates';
 
-	        // Rearrange the toolbar layout.
-	        editor.config.toolbarGroups = [
-	          { name: 'editing', groups: [ 'basicstyles', 'links' ] },
-	          { name: 'undo' },
-	          { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
-	          { name: 'about' }
-	        ];
-	      } );
-	    }
+	    // Rearrange the toolbar layout.
+	    editor.config.toolbarGroups = [
+	    { name: 'editing', groups: [ 'basicstyles', 'links' ] },
+	      { name: 'undo' },
+	      { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
+	      { name: 'about' }
+	    ];
+	    } );
+	  }
 	  } );
 
-	  
+
 
 	};
 
 	var app = function(){
-	    app.createTemplate();
-	    app.listeners();
-	  };
+
+	  $('body').html(templates.wrapper);
+	  $('body').append(templates.controls);
+
+	  app.createTemplate();
+	  app.listeners();
+	};
 
 	app.listeners = function(){
+	  $('body').on('click', '.controls #love', function(){
+	    app.saveCurrentModel();
+	  });
+
+	  $('body').on('click', '.controls #next', function(){
+	    app.createTemplate();
+	  });
+	  /*
 	  var KEYS = {L: 108, N: 110};
 	  $('body').keypress(function(e){
 	    if (e.which === KEYS.L){
@@ -126,6 +126,7 @@
 	      app.createTemplate();
 	    }
 	  });
+	  */
 	};
 
 	app.saveCurrentModel = function(){
@@ -143,7 +144,7 @@
 	  }
 	  var genome = Genome(app.genePool);
 	  app.currentModel = genome;
-	  $('body').html(templates.grid(genome, app.content));
+	  $('.site-wrapper').html(templates.grid(genome, app.content));
 	  var gridster = $('.gridster ul').gridster({
 	    widget_margins: [genome.margin, genome.margin],
 	      max_cols: 6,
@@ -154,22 +155,22 @@
 	      },
 	      resize: {
 	        enabled: true,
-	        stop: function(e, ui, $widget){
-	          app.currentModel.cells = this.serialize();
-	        }
+	      stop: function(e, ui, $widget){
+	        app.currentModel.cells = this.serialize();
+	      }
 	      },
 	      widget_base_dimensions: [150, 100],
 	      helper: 'clone'
 	  }).data('gridster');  
-
-	  //CKEDITOR.inlineAll();
 
 	  rezi(styles(genome));
 	  makeEditable();
 	};
 
 	var templates = {
-	  grid: grid
+	  grid: grid,
+	  wrapper: '<div class="site-wrapper"></div>',
+	  controls: '<div class="controls"><button id="love">Love</button><button id="next">Next</button></div>'
 	};
 
 	$(document).ready(function(){app();});
@@ -1820,9 +1821,33 @@
 	    'background-color': genome.pageBackground
 	  };
 
+	  var siteWrapper = {
+	    'border': '0',
+	    'margin': '0',
+	    'padding': '0'
+	  };
+
+	  var controls = {
+	    'position': 'fixed',
+	    'z-index': '2',
+	    'left': window.innerWidth - 130 + 'px',
+	    'top': window.innerHeight - 50 + 'px',
+	      '#love': {
+	        'background-color': '#3f7',
+	        'color': '#000',
+	        'cursor': 'pointer'
+	      },
+	      '#next': {
+	        'background-color': '#f37',
+	        'color': '#fff',
+	        'cursor': 'pointer'
+	    }
+	  };
+
 	  return {   
 	    'body': body,
-	      
+	    '.site-wrapper': siteWrapper,
+
 	    '.payload': {
 	      'margin': '5px'
 	    },
@@ -1830,6 +1855,8 @@
 	      '.topbar': topbar,  
 
 	      '.subtext': subtext,
+
+	      '.controls': controls,
 
 	      '.gridster' : {
 	        'li': {
@@ -2056,8 +2083,6 @@
 	var _ = __webpack_require__(2);
 	var darwa = __webpack_require__(4);
 	var simulatedAnnealing = __webpack_require__(7);
-	var content = __webpack_require__(8);
-
 
 	var mutateColors = function(genomeColors, genePoolSize){
 	  // as the genepool grows larger, turn the heat down
@@ -2087,9 +2112,6 @@
 	  ];
 
 	var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
-
-	var cellContents = content();
-	console.log(cellContents);
 
 	var Genome = function(genePool){
 	  var genome = {};
@@ -2205,71 +2227,6 @@
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
-
-	var Content = function(html, numberAllowed){
-	  var c = {};
-	  c.html = html || '';
-	  c.numberAllowed = numberAllowed || Infinity;
-	  c.ancillaryClasses = [];
-	  return c;
-	};
-
-	var content = [];
-	  content.push(Content('<h1 class="payload" contenteditable="true" >Title</h1>', 1));
-	  content.push(Content('<p class="payload"  contenteditable="true" >some paragraph text</p>', 4));
-	  content.push(Content('<h2 class="payload" contenteditable="true" >Small Title</h2>', 4));
-	  /*
-	  content.push(Content('<p class="payload">Okay, I\'m calling it. As of 2015, we\'ve officially passed the Web Singularity.' +
-	  'AI driven site design\'s still kind of on the horizon (I\'m looking at you Grid.io)' +
-	  ' but Kurzweil\'s baby was never actually about AI, it\'s about predictability. </p>'));
-
-	  content.push(Content('<p>The question of the Singularity is \'How far into the future can I predict the state of the world\'.' +
-	  ' The Singularity approaches when that time-distance approaches zero. </p>'));
-
-	  content.push(Content('<p>Ask yourself this, web dev: how far into the future is that day for you? A year in the future? A month? A week?</p>'));
-	  content.push(Content('<p>What if it\'s already passed you? What if the web world is actually already beyond where you predict it will be tomorrow?</p>'));
-	  content.push(Content('<p>The Web Singularity isn\'t just near - it\'s HERE, and for lots of us it may have already passed.</p>', 4));
-	  */
-	  
-	  //content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
-	  
-	  /*
-	  var imagePaths = [
-	    'headshot-128.png'
-	    ];
-
-	  for (var i=0;i<imagePaths.length;i++){
-	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
-	    img.ancillaryClasses.push('no-background', 'middled');
-	    content.push(img);
-	  }
-	*/
-
-	/*
-	var quotes = [
-	  'He who is brave is free.',
-	  'An unimportant thing done well is still unimportant.',
-	  'Where there is life, there is hope'
-	];
-
-	for (var i=0;i<quotes.length;i++){
-	  var q = Content('<p>' + quotes[i] + '</p>');
-	  q.ancillaryClasses.push('topbar', 'middled');
-	  console.log(q);
-	  content.push(Content(quotes[i]));
-	};
-	*/
-
-	var cellPopulator = function(){
-	  return content[Math.floor(Math.random() * content.length)];
-	};
-
-	module.exports = cellPopulator;
-
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);

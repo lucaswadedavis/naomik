@@ -4,24 +4,12 @@ var _ = require('../../lib/js/underscore.js');
 var rezi = require('../../lib/js/rezi.js');
 var Genome = require('./genome.js');
 var cellsContent = require('./cellsContent.js');
-
-/*
-var makeEditable = function(className){ 
-  var pennables = document.getElementsByClassName(className || 'pennable');
-  for (var i=0;i<pennables.length;i++){
-    new Pen(pennables[i]);
-  }
-};
-*/
-
 var makeEditable = function(className){
-// Sample: Massive Inline Editing
- 
+  // Sample: Massive Inline Editing
+
   for (var key in app.content) {
     var editor = CKEDITOR.inline(key);
     editor.on('change', function(event){
-      console.log(event.editor.getData());
-      console.log(event.editor.container.$.id);
       app.content[event.editor.container.$.id].text = event.editor.getData();
     });
   }
@@ -35,43 +23,55 @@ var makeEditable = function(className){
 
   CKEDITOR.on( 'instanceCreated', function ( event ) {
     var editor = event.editor,
-        element = editor.element;
+  element = editor.element;
 
-    // Customize editors for headers and tag list.
-    // These editors do not need features like smileys, templates, iframes etc.
-    if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
-      // Customize the editor configuration on "configLoaded" event,
-      // which is fired after the configuration file loading and
-      // execution. This makes it possible to change the
-      // configuration before the editor initialization takes place.
-      editor.on( 'configLoaded', function () {
+  // Customize editors for headers and tag list.
+  // These editors do not need features like smileys, templates, iframes etc.
+  if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
+    // Customize the editor configuration on "configLoaded" event,
+    // which is fired after the configuration file loading and
+    // execution. This makes it possible to change the
+    // configuration before the editor initialization takes place.
+    editor.on( 'configLoaded', function () {
 
-        // Remove redundant plugins to make the editor simpler.
-        editor.config.removePlugins = 'colorbutton,find,flash,font,' +
-            'forms,iframe,image,newpage,removeformat,' +
-            'smiley,specialchar,stylescombo,templates';
+      // Remove redundant plugins to make the editor simpler.
+      editor.config.removePlugins = 'colorbutton,find,flash,font,' +
+      'forms,iframe,image,newpage,removeformat,' +
+      'smiley,specialchar,stylescombo,templates';
 
-        // Rearrange the toolbar layout.
-        editor.config.toolbarGroups = [
-          { name: 'editing', groups: [ 'basicstyles', 'links' ] },
-          { name: 'undo' },
-          { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
-          { name: 'about' }
-        ];
-      } );
-    }
+    // Rearrange the toolbar layout.
+    editor.config.toolbarGroups = [
+    { name: 'editing', groups: [ 'basicstyles', 'links' ] },
+      { name: 'undo' },
+      { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
+      { name: 'about' }
+    ];
+    } );
+  }
   } );
 
-  
+
 
 };
 
 var app = function(){
-    app.createTemplate();
-    app.listeners();
-  };
+
+  $('body').html(templates.wrapper);
+  $('body').append(templates.controls);
+
+  app.createTemplate();
+  app.listeners();
+};
 
 app.listeners = function(){
+  $('body').on('click', '.controls #love', function(){
+    app.saveCurrentModel();
+  });
+
+  $('body').on('click', '.controls #next', function(){
+    app.createTemplate();
+  });
+  /*
   var KEYS = {L: 108, N: 110};
   $('body').keypress(function(e){
     if (e.which === KEYS.L){
@@ -80,6 +80,7 @@ app.listeners = function(){
       app.createTemplate();
     }
   });
+  */
 };
 
 app.saveCurrentModel = function(){
@@ -97,7 +98,7 @@ app.createTemplate = function(){
   }
   var genome = Genome(app.genePool);
   app.currentModel = genome;
-  $('body').html(templates.grid(genome, app.content));
+  $('.site-wrapper').html(templates.grid(genome, app.content));
   var gridster = $('.gridster ul').gridster({
     widget_margins: [genome.margin, genome.margin],
       max_cols: 6,
@@ -108,22 +109,22 @@ app.createTemplate = function(){
       },
       resize: {
         enabled: true,
-        stop: function(e, ui, $widget){
-          app.currentModel.cells = this.serialize();
-        }
+      stop: function(e, ui, $widget){
+        app.currentModel.cells = this.serialize();
+      }
       },
       widget_base_dimensions: [150, 100],
       helper: 'clone'
   }).data('gridster');  
-
-  //CKEDITOR.inlineAll();
 
   rezi(styles(genome));
   makeEditable();
 };
 
 var templates = {
-  grid: grid
+  grid: grid,
+  wrapper: '<div class="site-wrapper"></div>',
+  controls: '<div class="controls"><button id="love">Love</button><button id="next">Next</button></div>'
 };
 
 $(document).ready(function(){app();});
