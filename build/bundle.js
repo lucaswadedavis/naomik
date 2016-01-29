@@ -45,10 +45,11 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var grid = __webpack_require__(1);
-	var styles = __webpack_require__(4);
+	var styles = __webpack_require__(3);
 	var _ = __webpack_require__(2);
-	var rezi = __webpack_require__(6);
-	var Genome = __webpack_require__(7);
+	var rezi = __webpack_require__(5);
+	var Genome = __webpack_require__(6);
+	var cellsContent = __webpack_require__(9);
 
 	/*
 	var makeEditable = function(className){ 
@@ -61,6 +62,15 @@
 
 	var makeEditable = function(className){
 	// Sample: Massive Inline Editing
+	 
+	  for (var key in app.content) {
+	    var editor = CKEDITOR.inline(key);
+	    editor.on('change', function(event){
+	      console.log(event.editor.getData());
+	      console.log(event.editor.container.$.id);
+	      app.content[event.editor.container.$.id].text = event.editor.getData();
+	    });
+	  }
 
 	  // This code is generally not necessary, but it is here to demonstrate
 	  // how to customize specific editor instances on the fly. This fits this
@@ -68,6 +78,7 @@
 	  // require a smaller number of features.
 
 	  // The "instanceCreated" event is fired for every editor instance created.
+
 	  CKEDITOR.on( 'instanceCreated', function ( event ) {
 	    var editor = event.editor,
 	        element = editor.element;
@@ -96,6 +107,9 @@
 	      } );
 	    }
 	  } );
+
+	  
+
 	};
 
 	var app = function(){
@@ -121,6 +135,7 @@
 	app.currentModel;
 	app.genePool = [];
 	app.carryingCapacity = 10000;
+	app.content = cellsContent.all();
 
 	app.createTemplate = function(){
 	  if (app.genePool > app.carryingCapacity) {
@@ -128,7 +143,7 @@
 	  }
 	  var genome = Genome(app.genePool);
 	  app.currentModel = genome;
-	  $('body').html(templates.grid(genome));
+	  $('body').html(templates.grid(genome, app.content));
 	  var gridster = $('.gridster ul').gridster({
 	    widget_margins: [genome.margin, genome.margin],
 	      max_cols: 6,
@@ -159,6 +174,8 @@
 
 	$(document).ready(function(){app();});
 
+	window.app = app;
+
 	module.exports = app;
 
 
@@ -168,17 +185,19 @@
 
 	var _ = __webpack_require__(2);
 
-	cellPopulator = __webpack_require__(3);
-
-	var grid = function(genome){
+	var grid = function(genome, content){
 	  var d = '';
 	  d += '<div class="gridster-wrapper">';
 	  d += '<div class="gridster">';
 	  d += '<ul>';
-	  for (var i=0;i<genome.cells.length;i++){
+	  var cc = content;
+	  var i = 0;
+	  for (var key in cc){
+	    if (i>=genome.cells.length){break;}
 	    var c = genome.cells[i];
 	    var autoClass = _.sample(genome.autoClasses);
-	    d += grid.cell(c.row, c.col, c.size_x, c.size_y, autoClass);
+	    d += grid.cell(cc[key], c.row, c.col, c.size_x, c.size_y, autoClass);
+	    i++;
 	  }
 	  d += '<ul>';
 	  d += '</div>';
@@ -186,17 +205,17 @@
 	  return d;
 	};
 
-	grid.cell = function(row, col, w, h, autoClass){
+	grid.cell = function(content, row, col, w, h, autoClass){
+	  console.log(content.html());
 	  row = row || 1;
 	  col = col || 1;
 	  w = w || 1;
 	  h = h || 1;
-	  var content = cellPopulator();
 	  var d = '<li';
 	  d += ' class="' + autoClass + ' ' + content.ancillaryClasses.join(' ') + '" ';
 	  d += ' data-row="' + row + '" data-col="' + col + '" ';
 	  d += ' data-sizex="' + w + '" data-sizey="' + h + '" >';
-	  d += '' + content.html + '</li>';
+	  d += '' + content.html() + '</li>';
 	  return d;
 	};
 
@@ -1760,74 +1779,9 @@
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-	var Content = function(html, numberAllowed){
-	  var c = {};
-	  c.html = html || '';
-	  c.numberAllowed = numberAllowed || Infinity;
-	  c.ancillaryClasses = [];
-	  return c;
-	};
-
-	var content = [];
-	  content.push(Content('<h1 class="payload" contenteditable="true" >Title</h1>', 1));
-	  content.push(Content('<p class="payload"  contenteditable="true" >some paragraph text</p>', 4));
-	  content.push(Content('<h2 class="payload" contenteditable="true" >Section Title</h2>', 4));
-	  /*
-	  content.push(Content('<p class="payload">Okay, I\'m calling it. As of 2015, we\'ve officially passed the Web Singularity.' +
-	  'AI driven site design\'s still kind of on the horizon (I\'m looking at you Grid.io)' +
-	  ' but Kurzweil\'s baby was never actually about AI, it\'s about predictability. </p>'));
-
-	  content.push(Content('<p>The question of the Singularity is \'How far into the future can I predict the state of the world\'.' +
-	  ' The Singularity approaches when that time-distance approaches zero. </p>'));
-
-	  content.push(Content('<p>Ask yourself this, web dev: how far into the future is that day for you? A year in the future? A month? A week?</p>'));
-	  content.push(Content('<p>What if it\'s already passed you? What if the web world is actually already beyond where you predict it will be tomorrow?</p>'));
-	  content.push(Content('<p>The Web Singularity isn\'t just near - it\'s HERE, and for lots of us it may have already passed.</p>', 4));
-	  */
-	  
-	  //content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
-	  
-	  /*
-	  var imagePaths = [
-	    'headshot-128.png'
-	    ];
-
-	  for (var i=0;i<imagePaths.length;i++){
-	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
-	    img.ancillaryClasses.push('no-background', 'middled');
-	    content.push(img);
-	  }
-	*/
-
-	/*
-	var quotes = [
-	  'He who is brave is free.',
-	  'An unimportant thing done well is still unimportant.',
-	  'Where there is life, there is hope'
-	];
-
-	for (var i=0;i<quotes.length;i++){
-	  var q = Content('<p>' + quotes[i] + '</p>');
-	  q.ancillaryClasses.push('topbar', 'middled');
-	  console.log(q);
-	  content.push(Content(quotes[i]));
-	};
-	*/
-
-	var cellPopulator = function(){
-	  return content[Math.floor(Math.random() * content.length)];
-	};
-
-	module.exports = cellPopulator;
-
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var darwa = __webpack_require__(5);
+	var darwa = __webpack_require__(4);
 
 	var style = function(genome){
 	  var auto1 = {
@@ -1911,7 +1865,7 @@
 
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function(){
@@ -2030,7 +1984,7 @@
 
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
@@ -2096,13 +2050,15 @@
 	}).call(this);
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);
-	var darwa = __webpack_require__(5);
-	var simulatedAnnealing = __webpack_require__(8);
-	window.darwa = darwa;
+	var darwa = __webpack_require__(4);
+	var simulatedAnnealing = __webpack_require__(7);
+	var content = __webpack_require__(8);
+
+
 	var mutateColors = function(genomeColors, genePoolSize){
 	  // as the genepool grows larger, turn the heat down
 	  for (var i=0;i<genomeColors.length;i++){
@@ -2131,6 +2087,9 @@
 	  ];
 
 	var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
+
+	var cellContents = content();
+	console.log(cellContents);
 
 	var Genome = function(genePool){
 	  var genome = {};
@@ -2170,14 +2129,7 @@
 	  genome.saturation2 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation2'));
 	  genome.lightness1 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness1'));
 	  genome.lightness2 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness2'));
-	 
-	  /*
-	  var potentialColors = [];
-	  for (var i=0;i<3;i++){
-	    potentialColors.push(darwa.rgb());
-	  }
-	  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
-	  */
+
 	  genome.colors = [];
 	  genome.colors.push('hsl(' + genome.hue1 + ',' + genome.saturation1 + '%,' + genome.lightness1 + '%)');
 	  genome.colors.push('hsl(' + genome.hue2 + ',' + genome.saturation2 + '%,' + genome.lightness2 + '%)');
@@ -2215,11 +2167,11 @@
 
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);
-	var darwa = __webpack_require__(5);
+	var darwa = __webpack_require__(4);
 
 	var simulatedAnnealing = function(mutants, ancestors){
 	  // takes two arrays, one with mutatants, the other ancestors
@@ -2249,6 +2201,134 @@
 	*/
 
 	module.exports = simulatedAnnealing;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	var Content = function(html, numberAllowed){
+	  var c = {};
+	  c.html = html || '';
+	  c.numberAllowed = numberAllowed || Infinity;
+	  c.ancillaryClasses = [];
+	  return c;
+	};
+
+	var content = [];
+	  content.push(Content('<h1 class="payload" contenteditable="true" >Title</h1>', 1));
+	  content.push(Content('<p class="payload"  contenteditable="true" >some paragraph text</p>', 4));
+	  content.push(Content('<h2 class="payload" contenteditable="true" >Small Title</h2>', 4));
+	  /*
+	  content.push(Content('<p class="payload">Okay, I\'m calling it. As of 2015, we\'ve officially passed the Web Singularity.' +
+	  'AI driven site design\'s still kind of on the horizon (I\'m looking at you Grid.io)' +
+	  ' but Kurzweil\'s baby was never actually about AI, it\'s about predictability. </p>'));
+
+	  content.push(Content('<p>The question of the Singularity is \'How far into the future can I predict the state of the world\'.' +
+	  ' The Singularity approaches when that time-distance approaches zero. </p>'));
+
+	  content.push(Content('<p>Ask yourself this, web dev: how far into the future is that day for you? A year in the future? A month? A week?</p>'));
+	  content.push(Content('<p>What if it\'s already passed you? What if the web world is actually already beyond where you predict it will be tomorrow?</p>'));
+	  content.push(Content('<p>The Web Singularity isn\'t just near - it\'s HERE, and for lots of us it may have already passed.</p>', 4));
+	  */
+	  
+	  //content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
+	  
+	  /*
+	  var imagePaths = [
+	    'headshot-128.png'
+	    ];
+
+	  for (var i=0;i<imagePaths.length;i++){
+	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
+	    img.ancillaryClasses.push('no-background', 'middled');
+	    content.push(img);
+	  }
+	*/
+
+	/*
+	var quotes = [
+	  'He who is brave is free.',
+	  'An unimportant thing done well is still unimportant.',
+	  'Where there is life, there is hope'
+	];
+
+	for (var i=0;i<quotes.length;i++){
+	  var q = Content('<p>' + quotes[i] + '</p>');
+	  q.ancillaryClasses.push('topbar', 'middled');
+	  console.log(q);
+	  content.push(Content(quotes[i]));
+	};
+	*/
+
+	var cellPopulator = function(){
+	  return content[Math.floor(Math.random() * content.length)];
+	};
+
+	module.exports = cellPopulator;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(2);
+
+	uuid = function(){
+	  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+	    return v.toString(16);
+	  });
+	};
+
+	var Content = function(text, tag){
+	  var c = {};
+	  c.id = uuid();
+	  c.tag = tag || 'h2';
+	  c.text = text || '';
+	  c.html = function(){
+	    html = '<' + this.tag + ' ';
+	    html += 'class="' + 'payload' + '" ';
+	    html += 'contenteditable="true" ';
+	    html += 'id="' + this.id + '" ';
+	    html += ' >' + this.text;
+	    html += '</' + this.tag + '>';
+
+	    return html;
+	  };
+	  c.ancillaryClasses = [];
+	  return c;
+	};
+
+	var ContentAggregate = function(){
+	  var storage = {};
+
+	  return {
+	    get: function(id){
+	      return storage[id];
+	    },
+	      add: function(text, tag, numberToAdd){
+	        numberToAdd = numberToAdd || 3;
+	        for (var i=0;i<numberToAdd;i++){
+	          var c = Content(text, tag);
+	          var id = c.id;
+	          storage[id] = c;
+	        }
+	        return storage[id];
+	      },
+
+	      all: function(){
+	        return storage;
+	      }
+	  };
+	};
+
+	var content = ContentAggregate();
+	content.add('Title', 'h1', 1);
+	content.add('Some paragraph text...', 'p', 2);
+	content.add('Small Title', 'h2');
+
+	module.exports = content;
 
 
 /***/ }

@@ -3,6 +3,7 @@ var styles = require('./styles.js');
 var _ = require('../../lib/js/underscore.js');
 var rezi = require('../../lib/js/rezi.js');
 var Genome = require('./genome.js');
+var cellsContent = require('./cellsContent.js');
 
 /*
 var makeEditable = function(className){ 
@@ -15,6 +16,15 @@ var makeEditable = function(className){
 
 var makeEditable = function(className){
 // Sample: Massive Inline Editing
+ 
+  for (var key in app.content) {
+    var editor = CKEDITOR.inline(key);
+    editor.on('change', function(event){
+      console.log(event.editor.getData());
+      console.log(event.editor.container.$.id);
+      app.content[event.editor.container.$.id].text = event.editor.getData();
+    });
+  }
 
   // This code is generally not necessary, but it is here to demonstrate
   // how to customize specific editor instances on the fly. This fits this
@@ -22,6 +32,7 @@ var makeEditable = function(className){
   // require a smaller number of features.
 
   // The "instanceCreated" event is fired for every editor instance created.
+
   CKEDITOR.on( 'instanceCreated', function ( event ) {
     var editor = event.editor,
         element = editor.element;
@@ -50,6 +61,9 @@ var makeEditable = function(className){
       } );
     }
   } );
+
+  
+
 };
 
 var app = function(){
@@ -75,6 +89,7 @@ app.saveCurrentModel = function(){
 app.currentModel;
 app.genePool = [];
 app.carryingCapacity = 10000;
+app.content = cellsContent.all();
 
 app.createTemplate = function(){
   if (app.genePool > app.carryingCapacity) {
@@ -82,7 +97,7 @@ app.createTemplate = function(){
   }
   var genome = Genome(app.genePool);
   app.currentModel = genome;
-  $('body').html(templates.grid(genome));
+  $('body').html(templates.grid(genome, app.content));
   var gridster = $('.gridster ul').gridster({
     widget_margins: [genome.margin, genome.margin],
       max_cols: 6,
@@ -112,5 +127,7 @@ var templates = {
 };
 
 $(document).ready(function(){app();});
+
+window.app = app;
 
 module.exports = app;

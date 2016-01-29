@@ -1,7 +1,9 @@
 var _ = require('../../lib/js/underscore.js');
 var darwa = require('../../lib/js/darwa.js');
 var simulatedAnnealing = require('./simulated_annealing.js');
-window.darwa = darwa;
+var content = require('./content.js');
+
+
 var mutateColors = function(genomeColors, genePoolSize){
   // as the genepool grows larger, turn the heat down
   for (var i=0;i<genomeColors.length;i++){
@@ -30,6 +32,9 @@ var rows = [
   ];
 
 var autoClasses = ['auto0', 'auto1', 'auto1', 'auto1', 'auto2', 'auto2', 'auto3'];
+
+var cellContents = content();
+console.log(cellContents);
 
 var Genome = function(genePool){
   var genome = {};
@@ -69,14 +74,7 @@ var Genome = function(genePool){
   genome.saturation2 = simulatedAnnealing([_.random(0,100)], _.pluck(genePool, 'saturation2'));
   genome.lightness1 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness1'));
   genome.lightness2 =  simulatedAnnealing([_.random(100)], _.pluck(genePool, 'lightness2'));
- 
-  /*
-  var potentialColors = [];
-  for (var i=0;i<3;i++){
-    potentialColors.push(darwa.rgb());
-  }
-  genome.colors = simulatedAnnealing([potentialColors], _.pluck(genePool, 'colors'));
-  */
+
   genome.colors = [];
   genome.colors.push('hsl(' + genome.hue1 + ',' + genome.saturation1 + '%,' + genome.lightness1 + '%)');
   genome.colors.push('hsl(' + genome.hue2 + ',' + genome.saturation2 + '%,' + genome.lightness2 + '%)');
