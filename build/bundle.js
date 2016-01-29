@@ -50,6 +50,54 @@
 	var rezi = __webpack_require__(6);
 	var Genome = __webpack_require__(7);
 
+	/*
+	var makeEditable = function(className){ 
+	  var pennables = document.getElementsByClassName(className || 'pennable');
+	  for (var i=0;i<pennables.length;i++){
+	    new Pen(pennables[i]);
+	  }
+	};
+	*/
+
+	var makeEditable = function(className){
+	// Sample: Massive Inline Editing
+
+	  // This code is generally not necessary, but it is here to demonstrate
+	  // how to customize specific editor instances on the fly. This fits this
+	  // demo well because some editable elements (like headers) may
+	  // require a smaller number of features.
+
+	  // The "instanceCreated" event is fired for every editor instance created.
+	  CKEDITOR.on( 'instanceCreated', function ( event ) {
+	    var editor = event.editor,
+	        element = editor.element;
+
+	    // Customize editors for headers and tag list.
+	    // These editors do not need features like smileys, templates, iframes etc.
+	    if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
+	      // Customize the editor configuration on "configLoaded" event,
+	      // which is fired after the configuration file loading and
+	      // execution. This makes it possible to change the
+	      // configuration before the editor initialization takes place.
+	      editor.on( 'configLoaded', function () {
+
+	        // Remove redundant plugins to make the editor simpler.
+	        editor.config.removePlugins = 'colorbutton,find,flash,font,' +
+	            'forms,iframe,image,newpage,removeformat,' +
+	            'smiley,specialchar,stylescombo,templates';
+
+	        // Rearrange the toolbar layout.
+	        editor.config.toolbarGroups = [
+	          { name: 'editing', groups: [ 'basicstyles', 'links' ] },
+	          { name: 'undo' },
+	          { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
+	          { name: 'about' }
+	        ];
+	      } );
+	    }
+	  } );
+	};
+
 	var app = function(){
 	    app.createTemplate();
 	    app.listeners();
@@ -67,7 +115,6 @@
 	};
 
 	app.saveCurrentModel = function(){
-	  console.log('saved');
 	  app.genePool.push(app.currentModel);
 	};
 
@@ -87,24 +134,23 @@
 	      max_cols: 6,
 	      draggable: {
 	        stop: function(e, ui, $widget){
-	          console.log('drag stop');
-	          console.log(this.serialize());
 	          app.currentModel.cells = this.serialize();
 	        }
 	      },
 	      resize: {
 	        enabled: true,
 	        stop: function(e, ui, $widget){
-	          console.log('resize stop');
-	          console.log(this.serialize());
 	          app.currentModel.cells = this.serialize();
 	        }
 	      },
 	      widget_base_dimensions: [150, 100],
 	      helper: 'clone'
 	  }).data('gridster');  
-	  
+
+	  //CKEDITOR.inlineAll();
+
 	  rezi(styles(genome));
+	  makeEditable();
 	};
 
 	var templates = {
@@ -121,41 +167,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(2);
-
-	var Content = function(html, numberAllowed){
-	  var c = {};
-	  c.html = html || '';
-	  c.numberAllowed = numberAllowed || Infinity;
-	  c.ancillaryClasses = [];
-	  return c;
-	};
-
-	var cellPopulator = function(){
-	  var content = [];
-	  content.push(Content('<h1 class="payload">Title</h1>', 1));
-	  content.push(Content('<p class="payload">Okay, I\'m calling it. As of 2015, we\'ve officially passed the Web Singularity.' +
-	  'AI driven site design\'s still kind of on the horizon (I\'m looking at you Grid.io)' +
-	  ' but Kurzweil\'s baby was never actually about AI, it\'s about predictability. </p>' +
-	  '<p>The question of the Singularity is \'How far into the future can I predict the state of the world\'.' +
-	  ' The Singularity approaches when that time-distance approaches zero. </p>' +
-	  '<p>Ask yourself this, web dev: how far into the future is that day for you? A year in the future? A month? A week?</p>' +
-	  '<p>What if it\'s already passed you? What if the web world is actually already beyond where you predict it will be tomorrow?</p>' +
-	  '<p>The Web Singularity isn\'t just near - it\'s HERE, and for lots of us it may have already passed.</p>', 4));
-	  content.push(Content('<h2 class="payload">Section Title</h2>', 4));
-	  content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
-
-	  var imagePaths = [
-	    'headshot-128.png'
-	    ];
-	/*
-	  for (var i=0;i<imagePaths.length;i++){
-	    var img = Content('<img src="./images/' + imagePaths[i] + '" />', 1);
-	    img.ancillaryClasses.push('no-background', 'middled');
-	    content.push(img);
-	  }
-	*/
-	  return content[Math.floor(Math.random() * content.length)];
-	};
 
 	cellPopulator = __webpack_require__(3);
 
@@ -181,7 +192,6 @@
 	  w = w || 1;
 	  h = h || 1;
 	  var content = cellPopulator();
-	  console.log(content);
 	  var d = '<li';
 	  d += ' class="' + autoClass + ' ' + content.ancillaryClasses.join(' ') + '" ';
 	  d += ' data-row="' + row + '" data-col="' + col + '" ';
@@ -1761,11 +1771,25 @@
 	};
 
 	var content = [];
-	  content.push(Content('<h1 class="payload">Title</h1>', 1));
-	  content.push(Content('<p class="payload">some paragraph text</p>', 4));
-	  content.push(Content('<h2 class="payload">Section Title</h2>', 4));
+	  content.push(Content('<h1 class="payload" contenteditable="true" >Title</h1>', 1));
+	  content.push(Content('<p class="payload"  contenteditable="true" >some paragraph text</p>', 4));
+	  content.push(Content('<h2 class="payload" contenteditable="true" >Section Title</h2>', 4));
+	  /*
+	  content.push(Content('<p class="payload">Okay, I\'m calling it. As of 2015, we\'ve officially passed the Web Singularity.' +
+	  'AI driven site design\'s still kind of on the horizon (I\'m looking at you Grid.io)' +
+	  ' but Kurzweil\'s baby was never actually about AI, it\'s about predictability. </p>'));
+
+	  content.push(Content('<p>The question of the Singularity is \'How far into the future can I predict the state of the world\'.' +
+	  ' The Singularity approaches when that time-distance approaches zero. </p>'));
+
+	  content.push(Content('<p>Ask yourself this, web dev: how far into the future is that day for you? A year in the future? A month? A week?</p>'));
+	  content.push(Content('<p>What if it\'s already passed you? What if the web world is actually already beyond where you predict it will be tomorrow?</p>'));
+	  content.push(Content('<p>The Web Singularity isn\'t just near - it\'s HERE, and for lots of us it may have already passed.</p>', 4));
+	  */
+	  
 	  //content.push(Content('<h3 class="topbar">Imagine</h3><p class="subtext">A different kind of world.</p>'));
-	/*
+	  
+	  /*
 	  var imagePaths = [
 	    'headshot-128.png'
 	    ];
