@@ -46,27 +46,45 @@ var style = function(genome){
   var controls = {
     'position': 'fixed',
     'z-index': '2',
-    'left': window.innerWidth - 130 + 'px',
+    'left': window.innerWidth - 200 + 'px',
     'top': window.innerHeight - 50 + 'px',
-      '#love': {
-        'background-color': '#3f7',
-        'color': '#000',
-        'cursor': 'pointer'
-      },
-      '#next': {
-        'background-color': '#f37',
-        'color': '#fff',
-        'cursor': 'pointer'
+    '#love': {
+      'background-color': '#3f7',
+      'color': '#000',
+      'cursor': 'pointer'
+    },
+    '#next': {
+      'background-color': '#f37',
+      'color': '#fff',
+      'cursor': 'pointer'
+    },
+    '#see-all-designs': {
+      'background-color': '#333',
+      'color': '#fff',
+      'cursor': 'pointer'
     }
+  };
+
+  var savedDesigns = {
+    'opacity': '0',
+    'z-index': '-1',
+    'position': 'fixed',
+    'top': '30px',
+    'height': window.innerHeight - 100 + 'px',
+    'margin': '20px',
+    'background': '#333',
+    'border': '1px solid #fff',
+    'overflow': 'scroll'
   };
 
   return {   
     'body': body,
-    '.site-wrapper': siteWrapper,
+      '.site-wrapper': siteWrapper,
+      '.saved-designs': savedDesigns,
 
-    '.payload': {
-      'margin': '5px'
-    },
+      '.payload': {
+        'margin': '5px'
+      },
 
       '.topbar': topbar,  
 
@@ -81,7 +99,7 @@ var style = function(genome){
           'border': genome.borderWidth + 'px solid ' + genome.borderColor,
 
         },
-        'h1, h2': {
+        'h1, h2, h3': {
           'text-align': 'center'
         },
         'margin': '0 auto',      

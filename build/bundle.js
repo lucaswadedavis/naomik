@@ -104,7 +104,7 @@
 
 	  $('body').html(templates.wrapper);
 	  $('body').append(templates.controls);
-
+	  $('body').append(templates.savedDesignsOverlay);
 	  app.createTemplate();
 	  app.listeners();
 	};
@@ -116,6 +116,14 @@
 
 	  $('body').on('click', '.controls #next', function(){
 	    app.createTemplate();
+	  });
+
+	  $('body').on('click', '.controls #see-all-designs', function(){
+	    app.showSavedDesigns();
+	  });
+
+	  $('body').on('click', '.saved-designs .close', function(){
+	    app.hideSavedDesigns();
 	  });
 	  /*
 	  var KEYS = {L: 108, N: 110};
@@ -130,6 +138,16 @@
 	};
 
 	app.saveCurrentModel = function(){
+	  html2canvas(document.getElementsByClassName('site-wrapper')[0], {
+	    onrendered: function(canvas){
+	      console.log(canvas);
+	      var design ={
+	        canvas: canvas,
+	        code: rezi(styles(app.currentModel))
+	      };
+	      app.savedDesigns.push(design);
+	    }
+	  });
 	  app.genePool.push(app.currentModel);
 	};
 
@@ -137,6 +155,33 @@
 	app.genePool = [];
 	app.carryingCapacity = 10000;
 	app.content = cellsContent.all();
+	app.savedDesigns = [];
+
+	app.showSavedDesigns = function(){
+	      $(".saved-designs").animate({
+	        opacity: 1,
+	        zIndex: 5,
+	      }, 400, function() {
+	        $(".saved-designs").html('<span class="close">Close</span>');
+	        for (var i = 0; i < app.savedDesigns.length; i++) {
+	          document.getElementsByClassName('saved-designs')[0].appendChild(app.savedDesigns[i].canvas);
+	        }
+	        $("canvas").css({
+	          "zoom": "30%",
+	          "margin": "20px"
+	        });
+	      });
+	};
+
+	app.hideSavedDesigns = function(){
+	  $('.saved-designs').animate({
+	    opacity: 0,
+	    zIndex: -1
+	  }, 300, function(){
+	    $('.saved-designs').html('');
+	  });
+	};
+
 
 	app.createTemplate = function(){
 	  if (app.genePool > app.carryingCapacity) {
@@ -170,7 +215,8 @@
 	var templates = {
 	  grid: grid,
 	  wrapper: '<div class="site-wrapper"></div>',
-	  controls: '<div class="controls"><button id="love">Love</button><button id="next">Next</button></div>'
+	  controls: '<div class="controls"><button id="love">Love</button><button id="next">Next</button><button id="see-all-designs">See All</button></div>',
+	  savedDesignsOverlay: '<div class="saved-designs"></div>'
 	};
 
 	$(document).ready(function(){app();});
@@ -1830,27 +1876,45 @@
 	  var controls = {
 	    'position': 'fixed',
 	    'z-index': '2',
-	    'left': window.innerWidth - 130 + 'px',
+	    'left': window.innerWidth - 200 + 'px',
 	    'top': window.innerHeight - 50 + 'px',
-	      '#love': {
-	        'background-color': '#3f7',
-	        'color': '#000',
-	        'cursor': 'pointer'
-	      },
-	      '#next': {
-	        'background-color': '#f37',
-	        'color': '#fff',
-	        'cursor': 'pointer'
+	    '#love': {
+	      'background-color': '#3f7',
+	      'color': '#000',
+	      'cursor': 'pointer'
+	    },
+	    '#next': {
+	      'background-color': '#f37',
+	      'color': '#fff',
+	      'cursor': 'pointer'
+	    },
+	    '#see-all-designs': {
+	      'background-color': '#333',
+	      'color': '#fff',
+	      'cursor': 'pointer'
 	    }
+	  };
+
+	  var savedDesigns = {
+	    'opacity': '0',
+	    'z-index': '-1',
+	    'position': 'fixed',
+	    'top': '30px',
+	    'height': window.innerHeight - 100 + 'px',
+	    'margin': '20px',
+	    'background': '#333',
+	    'border': '1px solid #fff',
+	    'overflow': 'scroll'
 	  };
 
 	  return {   
 	    'body': body,
-	    '.site-wrapper': siteWrapper,
+	      '.site-wrapper': siteWrapper,
+	      '.saved-designs': savedDesigns,
 
-	    '.payload': {
-	      'margin': '5px'
-	    },
+	      '.payload': {
+	        'margin': '5px'
+	      },
 
 	      '.topbar': topbar,  
 
@@ -1865,7 +1929,7 @@
 	          'border': genome.borderWidth + 'px solid ' + genome.borderColor,
 
 	        },
-	        'h1, h2': {
+	        'h1, h2, h3': {
 	          'text-align': 'center'
 	        },
 	        'margin': '0 auto',      
@@ -2273,7 +2337,6 @@
 	        }
 	        return storage[id];
 	      },
-
 	      all: function(){
 	        return storage;
 	      }
@@ -2281,9 +2344,12 @@
 	};
 
 	var content = ContentAggregate();
+
 	content.add('Title', 'h1', 1);
 	content.add('Some paragraph text...', 'p', 2);
 	content.add('Small Title', 'h2');
+
+	content.add('linkedin | twitter | github | blog', 'h3', 1);
 
 	module.exports = content;
 
