@@ -41,6 +41,7 @@ var style = function(genome){
     'border': '0',
     'margin': '0',
     'padding': '0'
+    'background-color': genome.pageBackground
   };
 
   var controls = {
