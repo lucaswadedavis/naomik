@@ -139,8 +139,8 @@
 
 	app.saveCurrentModel = function(){
 	  html2canvas(document.getElementsByClassName('site-wrapper')[0], {
+	    background: app.currentModel.pageBackground,
 	    onrendered: function(canvas){
-	      console.log(canvas);
 	      var design ={
 	        canvas: canvas,
 	        code: rezi(styles(app.currentModel))
@@ -253,7 +253,6 @@
 	};
 
 	grid.cell = function(content, row, col, w, h, autoClass){
-	  console.log(content.html());
 	  row = row || 1;
 	  col = col || 1;
 	  w = w || 1;
@@ -1870,7 +1869,8 @@
 	  var siteWrapper = {
 	    'border': '0',
 	    'margin': '0',
-	    'padding': '0'
+	    'padding': '0',
+	    'background-color': genome.pageBackground
 	  };
 
 	  var controls = {

@@ -93,8 +93,8 @@ app.listeners = function(){
 
 app.saveCurrentModel = function(){
   html2canvas(document.getElementsByClassName('site-wrapper')[0], {
+    background: app.currentModel.pageBackground,
     onrendered: function(canvas){
-      console.log(canvas);
       var design ={
         canvas: canvas,
         code: rezi(styles(app.currentModel))

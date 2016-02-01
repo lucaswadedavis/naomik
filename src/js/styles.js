@@ -40,7 +40,7 @@ var style = function(genome){
   var siteWrapper = {
     'border': '0',
     'margin': '0',
-    'padding': '0'
+    'padding': '0',
     'background-color': genome.pageBackground
   };
 

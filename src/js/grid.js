@@ -21,7 +21,6 @@ var grid = function(genome, content){
 };
 
 grid.cell = function(content, row, col, w, h, autoClass){
-  console.log(content.html());
   row = row || 1;
   col = col || 1;
   w = w || 1;
