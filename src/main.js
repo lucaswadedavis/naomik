@@ -3,56 +3,7 @@ var styles = require('./styles.js');
 var _ = require('../lib/underscore.js');
 var rezi = require('../lib/rezi.js');
 var Genome = require('./genome.js');
-var cellsContent = require('./cellsContent.js');
-var makeEditable = function(className){
-  // Sample: Massive Inline Editing
-
-  for (var key in app.content) {
-    var editor = CKEDITOR.inline(key);
-    editor.on('change', function(event){
-      app.content[event.editor.container.$.id].text = event.editor.getData();
-    });
-  }
-
-  // This code is generally not necessary, but it is here to demonstrate
-  // how to customize specific editor instances on the fly. This fits this
-  // demo well because some editable elements (like headers) may
-  // require a smaller number of features.
-
-  // The "instanceCreated" event is fired for every editor instance created.
-
-  CKEDITOR.on( 'instanceCreated', function ( event ) {
-    var editor = event.editor,
-  element = editor.element;
-
-  // Customize editors for headers and tag list.
-  // These editors do not need features like smileys, templates, iframes etc.
-  if ( element.is( 'h1', 'h2', 'h3' ) || element.getAttribute( 'id' ) == 'taglist' ) {
-    // Customize the editor configuration on "configLoaded" event,
-    // which is fired after the configuration file loading and
-    // execution. This makes it possible to change the
-    // configuration before the editor initialization takes place.
-    editor.on( 'configLoaded', function () {
-
-      // Remove redundant plugins to make the editor simpler.
-      editor.config.removePlugins = 'colorbutton,find,flash,font,' +
-      'forms,iframe,image,newpage,removeformat,' +
-      'smiley,specialchar,stylescombo,templates';
-
-    // Rearrange the toolbar layout.
-    editor.config.toolbarGroups = [
-    { name: 'editing', groups: [ 'basicstyles', 'links' ] },
-      { name: 'undo' },
-      { name: 'clipboard', groups: [ 'selection', 'clipboard' ] },
-      { name: 'about' }
-    ];
-    } );
-  }
-  } );
-
-
-
-};
+var cellsContent = require('./content.js');
 
 var app = function(){
 
@@ -163,7 +114,6 @@ app.createTemplate = function(){
   }).data('gridster');  
 
   rezi(styles(genome));
-  makeEditable();
 };
 
 var templates = {

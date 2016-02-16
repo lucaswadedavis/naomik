@@ -15,7 +15,6 @@ var Content = function(text, tag){
   c.html = function(){
     html = '<' + this.tag + ' ';
     html += 'class="' + 'payload' + '" ';
-    html += 'contenteditable="true" ';
     html += 'id="' + this.id + '" ';
     html += ' >' + this.text;
     html += '</' + this.tag + '>';
@@ -48,12 +47,4 @@ var ContentAggregate = function(){
   };
 };
 
-var content = ContentAggregate();
-
-content.add('Title', 'h1', 1);
-content.add('Some paragraph text...', 'p', 2);
-content.add('Small Title', 'h2');
-
-content.add('linkedin | twitter | github | blog', 'h3', 1);
-
-module.exports = content;
+module.exports = ContentAggregate;
