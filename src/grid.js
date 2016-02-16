@@ -1,4 +1,4 @@
-var _ = require('../../lib/js/underscore.js');
+var _ = require('../lib/underscore.js');
 
 var grid = function(genome, content){
   var d = '';

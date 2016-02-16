@@ -1,4 +1,4 @@
-var darwa = require('../../lib/js/darwa.js');
+var darwa = require('../lib/darwa.js');
 
 var style = function(genome){
   var auto1 = {

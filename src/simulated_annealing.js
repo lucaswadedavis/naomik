@@ -1,5 +1,5 @@
-var _ = require('../../lib/js/underscore.js');
-var darwa = require('../../lib/js/darwa.js');
+var _ = require('../lib/underscore.js');
+var darwa = require('../lib/darwa.js');
 
 var simulatedAnnealing = function(mutants, ancestors){
   // takes two arrays, one with mutatants, the other ancestors

@@ -1,4 +1,4 @@
-var _ = require('../../lib/js/underscore.js');
+var _ = require('../lib/underscore.js');
 
 uuid = function(){
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
