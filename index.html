@@ -3,7 +3,35 @@
 <title>Naomi K</title>
 <meta charset="utf-8">
 <link type="text/css" href="./lib/jquery.gridster.css" rel="stylesheet" />
+<style id="print">
+@media print{
+  .site-wrapper{
+    padding:0px;
+    margin:0px;
+    border:0px;
+  }
+  #navigation{
+    display:none;
+  }
+  div{
+    page-break-inside: avoid;
+  }
 
+  table{
+    height:100%;
+  }
+}
+
+@media screen{
+  .site-wrapper{
+    padding:20px;
+    margin:40px;
+    margin-left:140px;
+    border:1px solid #aaa;
+  }
+}
+
+</style>
 <script type="text/javascript" src="./lib/html2canvas.js" charset="utf-8"></script>
 <script type="text/javascript" src="./lib/jquery.js" charset="utf-8"></script>
 <script type="text/javascript" src="./lib/gridster.js" charset="utf-8"></script>
