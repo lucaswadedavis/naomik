@@ -97,7 +97,7 @@ app.createTemplate = function(){
   $('.site-wrapper').html(templates.grid(genome, app.content));
   var gridster = $('.gridster ul').gridster({
     widget_margins: [genome.margin, genome.margin],
-      max_cols: 6,
+      max_cols: 60,
       draggable: {
         stop: function(e, ui, $widget){
           app.currentModel.cells = this.serialize();
@@ -109,7 +109,7 @@ app.createTemplate = function(){
         app.currentModel.cells = this.serialize();
       }
       },
-      widget_base_dimensions: [150, 100],
+      widget_base_dimensions: [10, 15],
       helper: 'clone'
   }).data('gridster');  
 
